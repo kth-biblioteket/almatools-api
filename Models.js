@@ -7,7 +7,7 @@ const readNewbooks = (req) => {
   let sql = `SELECT id, mmsid, recordid, isbn, isbnprimo, thumbnail, coverurl, 
                   title, DATE_FORMAT(activationdate, "%Y-%m-%d") as activationdate, 
                   publicationdate, dewey, subject, category, subcategory, booktype 
-                  FROM books
+                  FROM newbooks
                   WHERE 1`;
 
   if(req.query.activationdate) {
