@@ -1,0 +1,25 @@
+version: '3.6'
+
+services:
+  almatools-api:
+    container_name: almatools-api
+    image: ghcr.io/kth-biblioteket/almatools-api:${REPO_TYPE}
+    restart: always
+    environment:
+      - TZ=${TZ}
+    env_file:
+      - ./almatools-api.env
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.almatools-api.rule=Host(`${DOMAIN_NAME}`) && PathPrefix(`${PATHPREFIX}`)"
+      - "traefik.http.routers.almatools-api.middlewares=almatools-api-stripprefix"
+      - "traefik.http.middlewares.almatools-api-stripprefix.stripprefix.prefixes=${PATHPREFIX}"
+      - "traefik.http.routers.almatools-api.entrypoints=websecure"
+      - "traefik.http.routers.almatools-api.tls=true"
+      - "traefik.http.routers.almatools-api.tls.certresolver=myresolver"
+    networks:
+      - "apps-net"
+
+networks:
+  apps-net:
+    external: true
