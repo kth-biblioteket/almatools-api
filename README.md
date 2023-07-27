@@ -22,11 +22,15 @@ services:
     container_name: almatools-api
     image: ghcr.io/kth-biblioteket/almatools-api:${REPO_TYPE}
     restart: always
+    environment:
+      - TZ=${TZ}
     env_file:
       - ./almatools-api.env
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.almatools-api.rule=Host(`${DOMAIN_NAME}`) && PathPrefix(`${PATHPREFIX}`)"
+      - "traefik.http.routers.almatools-api.middlewares=almatools-api-stripprefix"
+      - "traefik.http.middlewares.almatools-api-stripprefix.stripprefix.prefixes=${PATHPREFIX}"
       - "traefik.http.routers.almatools-api.entrypoints=websecure"
       - "traefik.http.routers.almatools-api.tls=true"
       - "traefik.http.routers.almatools-api.tls.certresolver=myresolver"
@@ -42,16 +46,20 @@ networks:
 PATHPREFIX=/almatools
 DOMAIN_NAME=api-ref.lib.kth.se
 API_ROUTES_PATH=/v1
+REPO_TYPE=ref
+TZ=Europe/Stockholm
 ```
 4.  Skapa och anpassa almatools-api.env (för applikationen) i foldern
 ```
 PORT=80
-SECRET=xxxxx
-APIKEYREAD=xxxxxxxxxxxxxxxxxxxxxxxxx
+SECRET=xxxxxx
+API_KEY_READ=xxxxxx
+API_KEY_WRITE=xxxxxx
+DATABASEHOST=almatools-db
 DB_DATABASE=almatools
 DB_USER=almatools
-DB_PASSWORD=xxxxxxxxxxxx
-DB_ROOT_PASSWORD=xxxxxxxxxxxxxxx
+DB_PASSWORD=xxxxxx
+DB_ROOT_PASSWORD=xxxxxx
 API_ROUTES_PATH=/v1
 CORS_WHITELIST="http://localhost, https://apps.lib.kth.se, https://apps-ref.lib.kth.se, https://www.kth.se"
 ENVIRONMENT=development
