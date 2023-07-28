@@ -17,7 +17,7 @@
                 <% if (rows[i].publicationdate >= config.min_publication_date) { %>
                     <% if (rows[i].booktype == config.booktype || config.booktype == "all") { %>
                         <div class="bookitem">
-                            <div class="bookcover">`
+                            <div class="bookcover">
                                 <% if (rows[i].coverurl && rows[i].coverurl != 'https://api-ref.lib.kth.se/almatools/images/book.png') { %>
                                     <img class="bookcoverimage" src="<%=rows[i].coverurl%>">
                                 <% } else { %> 
