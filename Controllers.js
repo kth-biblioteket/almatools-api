@@ -1,5 +1,7 @@
 const Model = require('./Models');
 
+const translations = require('./translations/translations.json');
+
 async function readNewbooks(req, res) {
     try {
         let result = await Model.readNewbooks(req)
@@ -12,14 +14,15 @@ async function readNewbooks(req, res) {
 async function getNewbooksList(req, res) {
     try {
         let result = await Model.readNewbooks(req)
+        let lang = req.query.lang || 'sv'
         let config = {
             nroftitlestoshow : parseInt(req.query.nroftitlestoshow) || 20,
             min_publication_date: req.query.minpublicationdate || '2020-05-01',
             booktype: req.query.booktype || 'all',
-            lang: req.query.lang || 'sv',
-            bookitemtype_P_text : 'PBOOK',
-            bookitemtype_E_text : 'EBOOK',
-            bookitempublishedtext : "Pub: "
+            lang: lang,
+            bookitemtype_P_text : translations[lang].bookitemtype_P_text,
+            bookitemtype_E_text : translations[lang].bookitemtype_E_text,
+            bookitempublishedtext : translations[lang].bookitempublishedtext
         }
         console.log(config)
         res.render('pages/newbookslist', 
