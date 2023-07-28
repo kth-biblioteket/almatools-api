@@ -20,7 +20,8 @@ async function getNewbooksList(req, res) {
                 booktype: 'all',
                 lang: 'sv',
                 bookitemtype_P_text : 'PBOOK',
-                bookitemtype_E_text : 'EBOOK'
+                bookitemtype_E_text : 'EBOOK',
+                bookitempublishedtext : "Pub: "
             }, 
             rows: result 
         })
