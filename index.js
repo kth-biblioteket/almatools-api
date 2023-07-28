@@ -35,7 +35,7 @@ apiRoutes.get("/", async function (req, res, next) {
 
 apiRoutes.get("/newbooks", Controller.readNewbooks)
 
-apiRoutes.get("/newbookspage", Controller.getNewbookspage)
+apiRoutes.get("/newbookspage", Controller.getNewbooksList)
 
 app.use(process.env.API_ROUTES_PATH, apiRoutes);
 
