@@ -13,7 +13,7 @@
                 <% nroftitlestoshow = rows.length %>
             <% } %>
             <% for (i = 0; i < nroftitlestoshow; i++) { %>
-                <% (rows[i].booktype == "P") ? booktype = bookitemtype_P_text : booktype = bookitemtype_E_text %>
+                <% (rows[i].booktype == "P") ? booktype = config.bookitemtype_P_text : booktype = config.bookitemtype_E_text %>
                 <% if (rows[i].publicationdate >= config.min_publication_date) { %>
                     <% if (rows[i].booktype == config.booktype || config.booktype == "all") { %>
                         <div class="bookitem">
