@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <%- include('../partials/newbooksghead'); %>
+</head>
+
+<body>
+    <div>
+        <div class='newbooks'>
+            <% if (config.nroftitlestoshow < rows.length) { %>
+                <% nroftitlestoshow = config.nroftitlestoshow %>
+            <% } else { %>
+                <% nroftitlestoshow = rows.length %>
+            <% } %>
+            <% for (i = 0; i < nroftitlestoshow; i++) { %>
+                <% (rows[i].booktype == "P") ? booktype = bookitemtype_P_text : booktype = bookitemtype_E_text %>
+                <% if (rows[i].publicationdate >= config.min_publication_date) { %>
+                    <% if (rows[i].booktype == config.booktype || config.booktype == "all") { %>
+                        <div class="bookitem">
+                            <div class="bookcover">`
+                                <% if (rows[i].coverurl && rows[i].coverurl != 'https://api-ref.lib.kth.se/almatools/images/book.png') { %>
+                                    <img class="bookcoverimage" src="<%=rows[i].coverurl%>">
+                                <% } else { %> 
+                                    <div class="shape"><%= rows[i].title.replace('/', '').trim().substring(0,150)%></div>
+                                <% } %> 
+                            </div>
+                            <div class="bookdata">
+                                <div class="bookitemtitle">
+                                    <a target="_new" href="https://kth-ch.primo.exlibrisgroup.com/discovery/fulldisplay?vid=46KTH_INST:46KTH_VU1_L&docid=alma<%=rows[i].mmsid %>&lang=<%=config.lang}">
+                                        <%=rows[i].title.replace('/', '').trim()%>
+                                    </a>
+                                </div>
+                                <div>
+                                    <span><%=bookitempublishedtext%> <%=rows[i].publicationdate%></span>
+                                </div>
+                                <div>
+                                    <span><%=booktype%></span>
+                                </div>
+                            </div>
+                        </div>
+                    <% } %>
+                <% } %>
+            <% } %>
+        </div>
+    </div>
+</body>
+    <%- include('../partials/newbooksscript'); %>
+</html>

@@ -45,7 +45,7 @@
     var ss = document.createElement("link");
     ss.type = "text/css";
     ss.rel = "stylesheet";
-    ss.href = "/almatools/css/style.css";
+    ss.href = "https://api-ref.lib.kth.se/almatools/css/style.css";
     document.getElementsByTagName("head")[0].appendChild(ss);
 
     

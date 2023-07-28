@@ -9,10 +9,10 @@ async function readNewbooks(req, res) {
     }
 }
 
-async function getNewbookspage(req, res) {
+async function getNewbooksList(req, res) {
     try {
         let result = await Model.readNewbooks(req)
-        res.render('pages/newbooks', { rows: result })
+        res.render('pages/newbookslist', { rows: result })
     } catch (err) {
         res.send("error: " + err)
     }
