@@ -14,8 +14,8 @@
 <%- include('../partials/kthbbookshelf'); %>
 
 <script>
-    let config = JSON.parse('<%- JSON.stringify(config) %>')
-    let books = JSON.parse('<%- JSON.stringify(books) %>')
+    let config = JSON.parse(`<%- JSON.stringify(config) %>`)
+    let books = JSON.parse(`<%- JSON.stringify(books) %>`)
     bookarraystream = new VirtualBookshelf.ArrayStream(books)
     window.addEventListener('resize', function() {
         clearTimeout(resizeId);
