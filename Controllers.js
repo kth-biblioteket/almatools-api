@@ -65,7 +65,7 @@ async function getNewbooksCarousel(req, res) {
             stepDuration: req.query.stepDuration||"2000"
         }
         
-        res.render('pages/newbookslist', 
+        res.render('pages/newbookscarousel', 
         {
             config: config, 
             rows: result,
