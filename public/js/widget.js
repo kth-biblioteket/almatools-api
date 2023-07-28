@@ -347,7 +347,7 @@ function createbooklist() {
 
 function createbookcarousel(type) {
 
-    var endpoint = "https://lib.kth.se/newbooks/api/v1/books?activationdate=" + window.$newbooks.activationdate;
+    var endpoint = "https://api-ref.lib.kth.se/almatools/v1/newbooks?activationdate=" + window.$newbooks.activationdate;
     var apiKey = '';
 
     //Språkanpassning
