@@ -42,6 +42,7 @@ async function getNewbooksCarousel(req, res) {
         let books = [];
         let image;
         let booktype;
+        let nroftitlestoshow;
         (nroftitlestoshow > result.length ? nroftitlestoshow = result.length : nroftitlestoshow = parseInt(req.query.nroftitlestoshow))
         for (i=0;i<nroftitlestoshow;i++) {
             (result[i].booktype == "P") ? booktype = translations[lang].bookitemtype_P_text : booktype = translations[lang].bookitemtype_E_text;
