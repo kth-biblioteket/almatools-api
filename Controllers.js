@@ -18,7 +18,9 @@ async function getNewbooksList(req, res) {
                 nroftitlestoshow : 20,
                 min_publication_date: '2023-05-01',
                 booktype: 'all',
-                lang: 'sv'
+                lang: 'sv',
+                bookitemtype_P_text : 'PBOOK',
+                bookitemtype_E_text : 'EBOOK'
             }, 
             rows: result 
         })
