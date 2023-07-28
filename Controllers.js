@@ -16,9 +16,9 @@ async function getNewbooksList(req, res) {
         {
             config: {
                 nroftitlestoshow : req.query.nroftitlestoshow,
-                min_publication_date: req.query.nroftitlestoshow,
-                booktype: req.query.nroftitlestoshow,
-                lang: req.query.nroftitlestoshow,
+                min_publication_date: req.query.minpublicationdate,
+                booktype: req.query.booktype,
+                lang: req.query.lang,
                 bookitemtype_P_text : 'PBOOK',
                 bookitemtype_E_text : 'EBOOK',
                 bookitempublishedtext : "Pub: "
