@@ -52,10 +52,10 @@ async function getNewbooksCarousel(req, res) {
             books.push({
                 link: `https://kth-ch.primo.exlibrisgroup.com/discovery/fulldisplay?vid=46KTH_INST:46KTH_VU1_L&docid=alma${result[i].mmsid}&lang=${lang}`,
                 image: image,
-                title: rows[i].title.replace('/', '').trim().substring(0,150),
+                title: result[i].title.replace('/', '').trim().substring(0,150),
                 description: booktype,
                 target: "_new",
-                authors: [ rows[i].subject ]
+                authors: [ result[i].subject ]
             });
         }
         let config = {
