@@ -35,6 +35,47 @@ async function getNewbooksList(req, res) {
     }
 }
 
+async function getNewbooksCarousel(req, res) {
+    try {
+        let result = await Model.readNewbooks(req)
+        let lang = req.query.lang || 'sv'
+        let books = [];
+        let image;
+        let booktype;
+        for (i=0;i<result.length;i++) {
+            (response[i].booktype == "P") ? booktype = translations[lang].bookitemtype_P_text : booktype = translations[lang].bookitemtype_E_text;
+            if (result[i].coverurl && result[i].coverurl != 'https://api-ref.lib.kth.se/almatools/images/book.png') {
+                image = response[i].coverurl
+            } else {
+                image = ''
+            }
+            books.push({
+                link: `https://kth-ch.primo.exlibrisgroup.com/discovery/fulldisplay?vid=46KTH_INST:46KTH_VU1_L&docid=alma${result[i].mmsid}&lang=${lang}`,
+                image: image,
+                title: rows[i].title.replace('/', '').trim().substring(0,150),
+                description: booktype,
+                target: "_new",
+                authors: [ rows[i].subject ]
+            });
+        }
+        let config = {
+            nocoverfontsize : req.query.nocoverfontsize || 20,
+            carouseltype : req.query.carouseltype || 'carousel',
+            stepInterval: req.query.stepInterval||"5000",
+            stepDuration: req.query.stepDuration||"2000"
+        }
+        
+        res.render('pages/newbookslist', 
+        {
+            config: config, 
+            rows: result,
+            books: books
+        })
+    } catch (err) {
+        res.send("error: " + err)
+    }
+}
+
 function truncate(str, max, suffix) {
     return str.length < max ? str : `${str.substr(0, str.substr(0, max - suffix.length).lastIndexOf(' '))}${suffix}`;
 }
@@ -69,5 +110,6 @@ function getLastDayOfWeek(date) {
 
 module.exports = {
     readNewbooks,
-    getNewbooksList
+    getNewbooksList,
+    getNewbooksCarousel
 };

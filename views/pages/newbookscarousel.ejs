@@ -6,8 +6,65 @@
 
 <body>
     <div>
-        
+        <div class='newbooks'>
+            <div id="bookshelf" class="kthbookshelf"></div>
+        </div>
     </div>
 </body>
-    <%- include('../partials/newbooksscript'); %>
+<%- include('../partials/kthbbookshelf'); %>
+
+<script>
+    let config = JSON.parse('<%- JSON.stringify(config) %>')
+    let books = JSON.parse('<%- JSON.stringify(books) %>')
+    bookarraystream = new VirtualBookshelf.ArrayStream(books)
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeId);
+        resizeId = setTimeout(doneResizing, 500);
+    });
+    carousel_start()
+
+    var resizeId;
+    function doneResizing(){
+        var x = document.getElementById("bookshelf");
+        //Sätt höjd på karusell beroende på bredd
+        jQuery(".kthbookshelf").height(parseInt(jQuery(".kthbookshelf").width())/1.6)
+
+        //Sätt storlek på font beroende på bredd på karusell
+        if (parseInt(jQuery(".kthbookshelf").width()) < 200 ) {
+            jQuery(".kthbookshelf").css('fontSize', 6);
+        } else if (parseInt(jQuery(".kthbookshelf").width()) < 500 ) {
+            jQuery(".kthbookshelf").css('fontSize', 8);
+        } else {
+            jQuery(".kthbookshelf").css('fontSize', parseInt(config.nocoverfontsize));
+        }
+        //rensa listan
+        x.innerHTML = "";
+        //Kopiera den tomma listan men INTE de eventlisteners som finns
+        x.replaceWith(x.cloneNode(true));
+        //Starta om karusell
+        carousel_start();
+    }
+
+    function carousel_start() {
+        if(config.carouseltype == 'carousel') {
+            bookshelfobject = new VirtualBookshelf.Carousel('#bookshelf', {
+                itemAspect: 0.8,
+                perspective: 0.6,
+                spacing: 1.15,
+                tilt: -0.02,
+                stream: bookarraystream
+            });
+        }
+        if(window.$newbooks.carouseltype == 'train') {
+            bookshelfobject = new VirtualBookshelf.Train('#bookshelf', {
+                itemAspect: 0.7,
+                spacing: 1.15,
+                unfocusedScale: 0.6,
+                stepInterval: config.stepInterval,
+                stepDuration: config.stepDuration,
+                stream: bookarraystream
+            });
+        }
+    }
+</script>
 </html>
