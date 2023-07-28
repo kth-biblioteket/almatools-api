@@ -6,17 +6,6 @@
 
 (function () {
 
-    var firstScript
-    var script;
-
-    script = document.createElement('script');
-    script.charset = "utf-8";
-    script.async = false; // important: we want to execute translations first
-    script.src = "https://code.jquery.com/jquery-3.5.1.js";
-    //script.src = "https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js";
-    firstScript = document.scripts[0];
-    //document.body.appendChild(script)
-
     // Hämta eventuella parametrar som angivits från anropande sida.
 
     window.$newbooks.custom_texts.START_TEXT = window.$newbooks.custom_texts.START_TEXT || ''
