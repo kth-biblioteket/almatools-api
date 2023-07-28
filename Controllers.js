@@ -12,17 +12,19 @@ async function readNewbooks(req, res) {
 async function getNewbooksList(req, res) {
     try {
         let result = await Model.readNewbooks(req)
+        let config = {
+            nroftitlestoshow : parseInt(req.query.nroftitlestoshow) || 20,
+            min_publication_date: req.query.minpublicationdate,
+            booktype: req.query.booktype,
+            lang: req.query.lang,
+            bookitemtype_P_text : 'PBOOK',
+            bookitemtype_E_text : 'EBOOK',
+            bookitempublishedtext : "Pub: "
+        }
+        console.log(config)
         res.render('pages/newbookslist', 
         {
-            config: {
-                nroftitlestoshow : parseInt(req.query.nroftitlestoshow) || 20,
-                min_publication_date: req.query.minpublicationdate,
-                booktype: req.query.booktype,
-                lang: req.query.lang,
-                bookitemtype_P_text : 'PBOOK',
-                bookitemtype_E_text : 'EBOOK',
-                bookitempublishedtext : "Pub: "
-            }, 
+            config: config, 
             rows: result 
         })
     } catch (err) {
