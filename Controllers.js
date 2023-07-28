@@ -12,6 +12,7 @@ async function readNewbooks(req, res) {
 async function getNewbooksList(req, res) {
     try {
         let result = await Model.readNewbooks(req)
+        console.log(req.query)
         res.render('pages/newbookslist', 
         {
             config: {
