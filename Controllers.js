@@ -16,7 +16,7 @@ async function getNewbooksList(req, res) {
         {
             config: {
                 nroftitlestoshow : 20,
-                min_publication_date: '2023-05-01',
+                min_publication_date: '2020-05-01',
                 booktype: 'all',
                 lang: 'sv',
                 bookitemtype_P_text : 'PBOOK',
