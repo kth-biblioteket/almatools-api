@@ -12,6 +12,10 @@ a {
     background-color: transparent;
 }
 
+*, ::after, ::before {
+    box-sizing: border-box;
+}
+
 .newbooks {
     display:flex;
     flex-wrap:wrap;
@@ -37,9 +41,8 @@ a {
     align-items: center;
     text-align: center;
     background-color: rgba(36,160,216,1);
-    max-width: 200px;
-    height: 221px;
-    max-height: 221px;
+    width: 200px;
+    height: 260px;
     color: white;
     position: relative;
     padding: 20px;
