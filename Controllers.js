@@ -15,10 +15,10 @@ async function getNewbooksList(req, res) {
         res.render('pages/newbookslist', 
         {
             config: {
-                nroftitlestoshow : 20,
-                min_publication_date: '2020-05-01',
-                booktype: 'all',
-                lang: 'sv',
+                nroftitlestoshow : req.query.nroftitlestoshow,
+                min_publication_date: req.query.nroftitlestoshow,
+                booktype: req.query.nroftitlestoshow,
+                lang: req.query.nroftitlestoshow,
                 bookitemtype_P_text : 'PBOOK',
                 bookitemtype_E_text : 'EBOOK',
                 bookitempublishedtext : "Pub: "
