@@ -37,6 +37,8 @@ apiRoutes.get("/newbooks", Controller.readNewbooks)
 
 apiRoutes.get("/newbookspage", Controller.getNewbooksList)
 
+apiRoutes.get("/newbookscarousel", Controller.getNewbooksCarousel)
+
 app.use(process.env.API_ROUTES_PATH, apiRoutes);
 
 const server = app.listen(process.env.PORT || 3002, function () {
