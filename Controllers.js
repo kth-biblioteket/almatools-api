@@ -9,6 +9,15 @@ async function readNewbooks(req, res) {
     }
 }
 
+async function getNewbookspage(req, res) {
+    try {
+        let result = await Model.readNewbooks(req)
+        res.render('pages/newbooks', { rows: result })
+    } catch (err) {
+        res.send("error: " + err)
+    }
+}
+
 function truncate(str, max, suffix) {
     return str.length < max ? str : `${str.substr(0, str.substr(0, max - suffix.length).lastIndexOf(' '))}${suffix}`;
 }
@@ -42,5 +51,6 @@ function getLastDayOfWeek(date) {
 }
 
 module.exports = {
-    readNewbooks
+    readNewbooks,
+    getNewbookspage
 };

@@ -25,6 +25,8 @@ app.set("view engine", "ejs");
 const whitelist = process.env.CORS_WHITELIST.split(", "); 
 app.use(cors({origin: whitelist}));
 
+app.use(express.static(path.join(__dirname, "public")));
+
 const apiRoutes = express.Router();
 
 apiRoutes.get("/", async function (req, res, next) {
@@ -32,6 +34,8 @@ apiRoutes.get("/", async function (req, res, next) {
 });
 
 apiRoutes.get("/newbooks", Controller.readNewbooks)
+
+apiRoutes.get("/newbookspage", Controller.getNewbookspage)
 
 app.use(process.env.API_ROUTES_PATH, apiRoutes);
 

@@ -1,7 +1,7 @@
 {
-  "name": "bookingsystem-api",
+  "name": "almatools-api",
   "version": "1.1.0",
-  "description": "API mot Bookingsystem",
+  "description": "API mot Almatools",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
