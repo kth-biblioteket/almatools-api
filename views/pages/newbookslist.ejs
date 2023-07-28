@@ -21,13 +21,13 @@
                                 <% if (rows[i].coverurl && rows[i].coverurl != 'https://api-ref.lib.kth.se/almatools/images/book.png') { %>
                                     <img class="bookcoverimage" src="<%=rows[i].coverurl%>">
                                 <% } else { %> 
-                                    <div class="shape"><%= rows[i].title.replace('/', '').trim().substring(0,150)%></div>
+                                    <div class="shape"><%=rows[i].title.replace('/', '').trim().substring(0,150)%></div>
                                 <% } %> 
                             </div>
                             <div class="bookdata">
                                 <div class="bookitemtitle">
-                                    <a target="_new" href="https://kth-ch.primo.exlibrisgroup.com/discovery/fulldisplay?vid=46KTH_INST:46KTH_VU1_L&docid=alma<%=rows[i].mmsid %>&lang=<%=config.lang}">
-                                        <%=rows[i].title.replace('/', '').trim()%>
+                                    <a target="_new" href="https://kth-ch.primo.exlibrisgroup.com/discovery/fulldisplay?vid=46KTH_INST:46KTH_VU1_L&docid=alma<%=rows[i].mmsid %>&lang=<%=config.lang%>">
+                                        <%=rows[i].title.replace('/', '').trim() %>
                                     </a>
                                 </div>
                                 <div>
