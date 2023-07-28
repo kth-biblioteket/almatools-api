@@ -43,9 +43,9 @@ async function getNewbooksCarousel(req, res) {
         let image;
         let booktype;
         for (i=0;i<result.length;i++) {
-            (response[i].booktype == "P") ? booktype = translations[lang].bookitemtype_P_text : booktype = translations[lang].bookitemtype_E_text;
+            (result[i].booktype == "P") ? booktype = translations[lang].bookitemtype_P_text : booktype = translations[lang].bookitemtype_E_text;
             if (result[i].coverurl && result[i].coverurl != 'https://api-ref.lib.kth.se/almatools/images/book.png') {
-                image = response[i].coverurl
+                image = result[i].coverurl
             } else {
                 image = ''
             }
