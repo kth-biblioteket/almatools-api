@@ -12,11 +12,10 @@ async function readNewbooks(req, res) {
 async function getNewbooksList(req, res) {
     try {
         let result = await Model.readNewbooks(req)
-        console.log(req.query)
         res.render('pages/newbookslist', 
         {
             config: {
-                nroftitlestoshow : req.query.nroftitlestoshow,
+                nroftitlestoshow : parseInt(req.query.nroftitlestoshow) || 20,
                 min_publication_date: req.query.minpublicationdate,
                 booktype: req.query.booktype,
                 lang: req.query.lang,
