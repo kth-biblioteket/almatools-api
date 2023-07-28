@@ -14,9 +14,9 @@ async function getNewbooksList(req, res) {
         let result = await Model.readNewbooks(req)
         let config = {
             nroftitlestoshow : parseInt(req.query.nroftitlestoshow) || 20,
-            min_publication_date: req.query.minpublicationdate,
-            booktype: req.query.booktype,
-            lang: req.query.lang,
+            min_publication_date: req.query.minpublicationdate || '2020-05-01',
+            booktype: req.query.booktype || 'all',
+            lang: req.query.lang || 'sv',
             bookitemtype_P_text : 'PBOOK',
             bookitemtype_E_text : 'EBOOK',
             bookitempublishedtext : "Pub: "
