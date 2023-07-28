@@ -25,7 +25,7 @@ app.set("view engine", "ejs");
 const whitelist = process.env.CORS_WHITELIST.split(", "); 
 app.use(cors({origin: whitelist}));
 
-app.use(express.static(path.join(__dirname, "public")));
+app.use(process.env.APP_PATH, express.static(path.join(__dirname, "public")));
 
 const apiRoutes = express.Router();
 
