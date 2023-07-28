@@ -12,7 +12,16 @@ async function readNewbooks(req, res) {
 async function getNewbooksList(req, res) {
     try {
         let result = await Model.readNewbooks(req)
-        res.render('pages/newbookslist', { rows: result })
+        res.render('pages/newbookslist', 
+        {
+            config: {
+                nroftitlestoshow : 20,
+                min_publication_date: '2023-05-01',
+                booktype: 'all',
+                lang: 'sv'
+            }, 
+            rows: result 
+        })
     } catch (err) {
         res.send("error: " + err)
     }
