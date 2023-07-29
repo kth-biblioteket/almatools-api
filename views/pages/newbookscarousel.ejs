@@ -11,11 +11,13 @@
         </div>
     </div>
 </body>
-<%- include('../partials/kthbbookshelf'); %>
-
 <script>
     let config = JSON.parse(`<%- JSON.stringify(config) %>`)
     let books = JSON.parse(`<%- JSON.stringify(books) %>`)
+</script>
+<%- include('../partials/kthbbookshelf'); %>
+
+<script>
     bookarraystream = new VirtualBookshelf.ArrayStream(books)
     window.addEventListener('resize', function() {
         clearTimeout(resizeId);
