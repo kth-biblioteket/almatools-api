@@ -31,12 +31,15 @@
 
         //Sätt storlek på font beroende på bredd på karusell
         if (parseInt(jQuery(".kthbookshelf").width()) < 200 ) {
-            jQuery(".kthbookshelf").css('fontSize', 8);
+            jQuery(".kthbookshelf").css('fontSize', 6);
         } else if (parseInt(jQuery(".kthbookshelf").width()) < 500 ) {
-            jQuery(".kthbookshelf").css('fontSize', 10);
+            jQuery(".kthbookshelf").css('fontSize', 9);
         } else {
             jQuery(".kthbookshelf").css('fontSize', parseInt(config.nocoverfontsize));
         }
+
+        jQuery(".kthbookshelf").css('maxHeight', parseInt(config.maxshelfheight));
+
         //rensa listan
         x.innerHTML = "";
         //Kopiera den tomma listan men INTE de eventlisteners som finns

@@ -64,7 +64,8 @@ async function getNewbooksCarousel(req, res) {
             nocoverfontsize : req.query.nocoverfontsize || 20,
             carouseltype : req.query.carouseltype || 'carousel',
             stepInterval: req.query.stepInterval||"5000",
-            stepDuration: req.query.stepDuration||"2000"
+            stepDuration: req.query.stepDuration||"2000",
+            maxshelfheight: req.query.maxshelfheight||"150"
         }
         
         res.render('pages/newbookscarousel', 
