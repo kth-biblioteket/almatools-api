@@ -1914,7 +1914,7 @@ function SimpleItem(data, context) {
 		}
         var w = image.width;
 		var h = image.height;
-		if (image.src != 'https://api-ref.lib.kth.se/almatools/images/book200.png') {
+		if (image.src != config.book200imageurl) {
             a.width(self['width'])
 			.height(self['height'])
 			.append(jQuery(image).css({
@@ -1938,7 +1938,7 @@ function SimpleItem(data, context) {
         image.src = data['image'];
     }
     else {
-        image.src = 'https://api-ref.lib.kth.se/almatools/images/book200.png'
+        image.src = config.book200imageurl
     }
 	
 	if (image.complete) {

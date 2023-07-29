@@ -22,7 +22,9 @@ async function getNewbooksList(req, res) {
             lang: lang,
             bookitemtype_P_text : translations[lang].bookitemtype_P_text,
             bookitemtype_E_text : translations[lang].bookitemtype_E_text,
-            bookitempublishedtext : translations[lang].bookitempublishedtext
+            bookitempublishedtext : translations[lang].bookitempublishedtext,
+            bookimageurl: process.env.BOOKIMAGEURL,
+            book200imageurl: process.env.BOOK200IMAGEURL
         }
         console.log(config)
         res.render('pages/newbookslist', 
@@ -46,7 +48,7 @@ async function getNewbooksCarousel(req, res) {
         (nroftitlestoshow > result.length ? nroftitlestoshow = result.length : nroftitlestoshow = parseInt(req.query.nroftitlestoshow))
         for (i=0;i<nroftitlestoshow;i++) {
             (result[i].booktype == "P") ? booktype = translations[lang].bookitemtype_P_text : booktype = translations[lang].bookitemtype_E_text;
-            if (result[i].coverurl && result[i].coverurl != 'https://api-ref.lib.kth.se/almatools/images/book.png') {
+            if (result[i].coverurl && result[i].coverurl != process.env.BOOKIMAGEURL) {
                 image = result[i].coverurl
             } else {
                 image = ''
