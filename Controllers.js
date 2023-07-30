@@ -86,6 +86,7 @@ async function getNewbooksCarousel(req, res) {
 
 async function getlibrisLS(req, res) {
     try {
+        let lang = req.query.lang || 'sv'
         let sru = ''
         let mmsid = '';
         let responsexml = `<?xml version="1.0" encoding="UTF-8" ?>
@@ -119,14 +120,14 @@ async function getlibrisLS(req, res) {
                 }
                 if (mmsid != '') {
                     /*Hämta holdings via Alma API*/
-                    let almaresponse = await axios.get(`https://api-eu.hosted.exlibrisgroup.com/almaws/v1/bibs/${mmsid}/holdings?apikey=${process.env.ALMAAPIKEY}`);
+                    let almaresponse = await axios.get(`https://api-eu.hosted.exlibrisgroup.com/almaws/v1/bibs/${mmsid}/holdings?apikey=${process.env.ALMAAPIKEY}&lang=${lang}`);
                     let holdings = almaresponse.data
                     let status_date = "";
                     let itemno = 0;
                     if (holdings['total_record_count'] > 0) {
                         for(i = 0; i < holdings.holding.length; i++) {
                             if(holdings.holding[i].library.value == "MAIN") {
-                                almaresponse = await axios.get(`${holdings.holding[i].link}/items?apikey=${process.env.ALMAAPIKEY}`);
+                                almaresponse = await axios.get(`${holdings.holding[i].link}/items?apikey=${process.env.ALMAAPIKEY}&lang=${lang}`);
                                 let items = almaresponse.data
                                 if (items['total_record_count'] > 0) {
                                     for(j = 0; j < items.item.length; j++) {
@@ -134,7 +135,7 @@ async function getlibrisLS(req, res) {
                                         let location = items.item[j]['item_data']['location']['desc'];
                                         let locationcode = items.item[i]['item_data']['location']['value'];
                                         /*Hämta location*/
-                                        almaresponse = await axios.get(`https://api-eu.hosted.exlibrisgroup.com/almaws/v1/conf/libraries/${holdings.holding[i]['library']['value']}/locations/${locationcode}?apikey=${process.env.ALMAAPIKEY}`);
+                                        almaresponse = await axios.get(`https://api-eu.hosted.exlibrisgroup.com/almaws/v1/conf/libraries/${holdings.holding[i]['library']['value']}/locations/${locationcode}?apikey=${process.env.ALMAAPIKEY}&lang=${lang}`);
                                         let almalocation = almaresponse.data
                                         
                                         let externalocation = almalocation['external_name'];
@@ -148,7 +149,7 @@ async function getlibrisLS(req, res) {
                                         } else if (items.item[j]['item_data']['base_status']['desc'] == "Item not in place") {
                                             /*Kolla om det är utlånat*/
                                             if(items.item[j]['item_data']['process_type']['value'] == "LOAN") {
-                                                almaresponse = await axios.get(`${items.item[j].link}/loans?apikey=${process.env.ALMAAPIKEY}`);
+                                                almaresponse = await axios.get(`${items.item[j].link}/loans?apikey=${process.env.ALMAAPIKEY}&lang=${lang}`);
                                                 let loans = almaresponse.data
                                                 /*Gå igenom lånen och hämta tidigaste datumet*/
                                                 for(k = 0; k < loans.item_loan.length; k++) {
