@@ -101,7 +101,7 @@ async function getlibrisLS(req, res) {
                 sru = `https://eu01.alma.exlibrisgroup.com/view/sru/46KTH_INST?version=1.2&operation=searchRetrieve&recordSchema=marcxml&query=alma.issn="${req.query.ISSN}"&maximumRecords=10`
             }
             if(sru != '') {
-                const response = await axios.get(`https://eu01.alma.exlibrisgroup.com/view/sru/46KTH_INST?version=1.2&operation=searchRetrieve&recordSchema=marcxml&query=alma.isbn="9781292402079"&maximumRecords=10`)
+                const response = await axios.get(sru)
                 xmlData = response.data.trim()
 
                 result = await xml2js.parseStringPromise(xmlData)
