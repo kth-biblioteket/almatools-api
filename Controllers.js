@@ -249,5 +249,6 @@ function getLastDayOfWeek(date) {
 module.exports = {
     readNewbooks,
     getNewbooksList,
-    getNewbooksCarousel
+    getNewbooksCarousel,
+    getlibrisLS
 };

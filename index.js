@@ -38,6 +38,7 @@ apiRoutes.get("/newbooks", Controller.readNewbooks)
 apiRoutes.get("/newbookspage", Controller.getNewbooksList)
 
 apiRoutes.get("/newbookscarousel", Controller.getNewbooksCarousel)
+apiRoutes.get("/librisls", Controller.getlibrisLS)
 
 app.use(process.env.API_ROUTES_PATH, apiRoutes);
 
