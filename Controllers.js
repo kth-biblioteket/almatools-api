@@ -174,7 +174,7 @@ async function getlibrisLS(req, res) {
                                             }
                                         }
                                         /*Vilken lånepolicy är det?*/
-                                        if(items.item[j]['holding_data']['temp_policy']['desc']!= '') {
+                                        if(items.item[j]['holding_data']['temp_policy']['desc'] && items.item[j]['holding_data']['temp_policy']['desc']!= '') {
                                             loan_policy = items.item[j]['holding_data']['temp_policy']['desc'];
                                         } else {
                                             loan_policy = items.item[j]['item_data']['policy']['desc'];
