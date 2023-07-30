@@ -93,7 +93,7 @@ async function getlibrisLS(req, res) {
 	
         if ((req.query.ISBN || req.query.ONR || req.query.ISSN) && req.query.library) {
             if (req.query.ISBN != '') {
-                sru = ` `
+                sru = `https://eu01.alma.exlibrisgroup.com/view/sru/46KTH_INST?version=1.2&operation=searchRetrieve&recordSchema=marcxml&query=alma.isbn="${req.query.ISBN}"&maximumRecords=10`
             } else if (req.query.ONR != '') {
                 sru = `https://eu01.alma.exlibrisgroup.com/view/sru/46KTH_INST?version=1.2&operation=searchRetrieve&recordSchema=marcxml&query=alma.isbn="${req.query.ONR}"&maximumRecords=10`
             } else if (req.query.ISSN != '') {
