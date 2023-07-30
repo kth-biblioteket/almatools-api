@@ -204,6 +204,7 @@ async function getlibrisLS(req, res) {
         }
         /*Avsluta reponse-strängen*/
         responsexml +='</Item_Information>';
+        res.set('Content-Type', 'text/xml');
         res.send(responsexml)
     } catch (err) {
         res.send("error: " + err)
