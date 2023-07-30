@@ -4,6 +4,11 @@ const axios = require('axios');
 
 const translations = require('./translations/translations.json');
 
+/**
+ * Hämta nya böcker från tabellen "newbooks"
+ * @param {*} req 
+ * @param {*} res 
+ */
 async function readNewbooks(req, res) {
     try {
         let result = await Model.readNewbooks(req)
@@ -13,6 +18,12 @@ async function readNewbooks(req, res) {
     }
 }
 
+/**
+ * Lista som visar nya böcker på https://www.kth.se/biblioteket/soka-vardera/nya-bocker-pa-kth-biblioteket-1.1175846
+ * Kodsnutt läggs in som html-block i polopoly
+ * @param {*} req 
+ * @param {*} res 
+ */
 async function getNewbooksList(req, res) {
     try {
         let result = await Model.readNewbooks(req)
@@ -38,6 +49,12 @@ async function getNewbooksList(req, res) {
     }
 }
 
+/**
+ * Karusell som visar nya böcker på https://www.kth.se/biblioteket
+ * Kodsnutt läggs in som html-block i polopoly
+ * @param {*} req 
+ * @param {*} res 
+ */
 async function getNewbooksCarousel(req, res) {
     try {
         let result = await Model.readNewbooks(req)
@@ -84,6 +101,12 @@ async function getNewbooksCarousel(req, res) {
     }
 }
 
+/**
+ * Libris lånestatus
+ * 
+ * @param {*} req 
+ * @param {*} res 
+ */
 async function getlibrisLS(req, res) {
     try {
         let lang = req.query.lang || 'sv'
@@ -158,7 +181,7 @@ async function getlibrisLS(req, res) {
                                                     currstatus_date = currstatus_date.substring(0,10)
                                                     if (status_date != "") {
                                                         /*kolla om aktuellt datum är tidigare*/
-                                                        if (strtotime($currstatus_date) < strtotime($status_date)) {
+                                                        if (new Date(currstatus_date) < new Date(status_date)) {
                                                             status_date = currstatus_date;
                                                         }
                                                     } else {

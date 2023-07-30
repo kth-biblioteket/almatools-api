@@ -38,6 +38,12 @@ apiRoutes.get("/newbooks", Controller.readNewbooks)
 apiRoutes.get("/newbookspage", Controller.getNewbooksList)
 
 apiRoutes.get("/newbookscarousel", Controller.getNewbooksCarousel)
+
+/**
+ * Libris Lånestatus. 
+ * 
+ * Länk till detta api läggs in i biblioteksdatabasen hos libris på respektive bibliotek(T, Te etc)
+ */
 apiRoutes.get("/librisls", Controller.getlibrisLS)
 
 app.use(process.env.API_ROUTES_PATH, apiRoutes);
