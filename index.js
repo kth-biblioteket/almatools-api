@@ -37,7 +37,7 @@ apiRoutes.get("/newbooks", Controller.readNewbooks)
 
 apiRoutes.get("/newbookspage", Controller.getNewbooksList)
 
-apiRoutes.get("/newbookscarousel", Controller.getNewbooksCarousel)
+apiRoutes.get("/newbookscarouselpage", Controller.getNewbooksCarousel)
 
 /**
  * Libris Lånestatus. 
