@@ -12,7 +12,7 @@
     </div>
 </body>
 <script>
-    let config = JSON.parse(`<%- JSON.stringify(config) %>`)
+    let almatoolsconfig = JSON.parse(`<%- JSON.stringify(almatoolsconfig) %>`)
     let books = JSON.parse(`<%- JSON.stringify(books) %>`)
 </script>
 <%- include('../partials/kthbbookshelf'); %>
@@ -37,10 +37,10 @@
         } else if (parseInt(jQuery(".kthbookshelf").width()) < 500 ) {
             jQuery(".kthbookshelf").css('fontSize', 9);
         } else {
-            jQuery(".kthbookshelf").css('fontSize', parseInt(config.nocoverfontsize));
+            jQuery(".kthbookshelf").css('fontSize', parseInt(almatoolsconfig.nocoverfontsize));
         }
 
-        jQuery(".kthbookshelf").css('maxHeight', parseInt(config.maxshelfheight));
+        jQuery(".kthbookshelf").css('maxHeight', parseInt(almatoolsconfig.maxshelfheight));
 
         //rensa listan
         x.innerHTML = "";
@@ -51,7 +51,7 @@
     }
 
     function carousel_start() {
-        if(config.carouseltype == 'carousel') {
+        if(almatoolsconfig.carouseltype == 'carousel') {
             bookshelfobject = new VirtualBookshelf.Carousel('#bookshelf', {
                 itemAspect: 0.8,
                 perspective: 0.6,
@@ -60,13 +60,13 @@
                 stream: bookarraystream
             });
         }
-        if(config.carouseltype == 'train') {
+        if(almatoolsconfig.carouseltype == 'train') {
             bookshelfobject = new VirtualBookshelf.Train('#bookshelf', {
                 itemAspect: 0.7,
                 spacing: 1.15,
                 unfocusedScale: 0.6,
-                stepInterval: config.stepInterval,
-                stepDuration: config.stepDuration,
+                stepInterval: almatoolsconfig.stepInterval,
+                stepDuration: almatoolsconfig.stepDuration,
                 stream: bookarraystream
             });
         }

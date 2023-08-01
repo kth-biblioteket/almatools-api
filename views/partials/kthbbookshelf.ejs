@@ -1,6 +1,6 @@
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"
-    integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
-
+<% if (!almatoolsconfig.nojquery) { %>
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+<% } %>
 <script>
 /**
 @interface jQueryEvent
@@ -1913,7 +1913,7 @@ function SimpleItem(data, context) {
 		}
         var w = image.width;
 		var h = image.height;
-		if (image.src != config.book200imageurl) {
+		if (image.src != almatoolsconfig.book200imageurl) {
             a.width(self['width'])
 			.height(self['height'])
 			.append(jQuery(image).css({
@@ -1937,7 +1937,7 @@ function SimpleItem(data, context) {
         image.src = data['image'];
     }
     else {
-        image.src = config.book200imageurl
+        image.src = almatoolsconfig.book200imageurl
     }
 	
 	if (image.complete) {

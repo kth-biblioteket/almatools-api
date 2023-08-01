@@ -28,7 +28,7 @@ async function getNewbooksList(req, res) {
     try {
         let result = await Model.readNewbooks(req)
         let lang = req.query.lang || 'sv'
-        let config = {
+        let almatoolsconfig = {
             nroftitlestoshow : parseInt(req.query.nroftitlestoshow) || 20,
             min_publication_date: req.query.minpublicationdate || '2020-05-01',
             booktype: req.query.booktype || 'all',
@@ -41,7 +41,7 @@ async function getNewbooksList(req, res) {
         }
         res.render('pages/newbookslist', 
         {
-            config: config, 
+            almatoolsconfig: almatoolsconfig, 
             rows: result 
         })
     } catch (err) {
@@ -80,7 +80,7 @@ async function getNewbooksCarousel(req, res) {
                 authors: [ result[i].subject ]
             });
         }
-        let config = {
+        let almatoolsconfig = {
             nocoverfontsize : req.query.nocoverfontsize || 20,
             carouseltype : req.query.carouseltype || 'carousel',
             stepInterval: req.query.stepInterval||"5000",
@@ -92,7 +92,7 @@ async function getNewbooksCarousel(req, res) {
         
         res.render('pages/newbookscarousel', 
         {
-            config: config, 
+            almatoolsconfig: almatoolsconfig, 
             rows: result,
             books: books
         })
