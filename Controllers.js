@@ -37,7 +37,8 @@ async function getNewbooksList(req, res) {
             bookitemtype_E_text : translations[lang].bookitemtype_E_text,
             bookitempublishedtext : translations[lang].bookitempublishedtext,
             bookimageurl: process.env.BOOKIMAGEURL,
-            book200imageurl: process.env.BOOK200IMAGEURL
+            book200imageurl: process.env.BOOK200IMAGEURL,
+            nojquery: req.query.nojquery || false,
         }
         res.render('pages/newbookslist', 
         {
@@ -87,7 +88,8 @@ async function getNewbooksCarousel(req, res) {
             stepDuration: req.query.stepDuration||"2000",
             maxshelfheight: req.query.maxshelfheight||"150",
             bookimageurl: process.env.BOOKIMAGEURL,
-            book200imageurl: process.env.BOOK200IMAGEURL
+            book200imageurl: process.env.BOOK200IMAGEURL,
+            nojquery: req.query.nojquery || false,
         }
         
         res.render('pages/newbookscarousel', 
