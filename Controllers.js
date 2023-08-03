@@ -1,14 +1,11 @@
 const Model = require('./Models');
 const xml2js = require('xml2js');
 const axios = require('axios');
+const js2xmlparser = require("js2xmlparser");
 
 const translations = require('./translations/translations.json');
 
-/**
- * Hämta nya böcker från tabellen "newbooks"
- * @param {*} req 
- * @param {*} res 
- */
+//Hämta nya böcker från tabellen "newbooks"
 async function readNewbooks(req, res) {
     try {
         let result = await Model.readNewbooks(req)
@@ -18,12 +15,8 @@ async function readNewbooks(req, res) {
     }
 }
 
-/**
- * Lista som visar nya böcker på https://www.kth.se/biblioteket/soka-vardera/nya-bocker-pa-kth-biblioteket-1.1175846
- * Kodsnutt läggs in som html-block i polopoly
- * @param {*} req 
- * @param {*} res 
- */
+// Lista som visar nya böcker på https://www.kth.se/biblioteket/soka-vardera/nya-bocker-pa-kth-biblioteket-1.1175846
+// Kodsnutt läggs in som html-block i polopoly
 async function getNewbooksList(req, res) {
     try {
         let result = await Model.readNewbooks(req)
@@ -50,12 +43,8 @@ async function getNewbooksList(req, res) {
     }
 }
 
-/**
- * Karusell som visar nya böcker på https://www.kth.se/biblioteket
- * Kodsnutt läggs in som html-block i polopoly
- * @param {*} req 
- * @param {*} res 
- */
+// Karusell som visar nya böcker på https://www.kth.se/biblioteket
+// Kodsnutt läggs in som html-block i polopoly
 async function getNewbooksCarousel(req, res) {
     try {
         let result = await Model.readNewbooks(req)
@@ -103,12 +92,7 @@ async function getNewbooksCarousel(req, res) {
     }
 }
 
-/**
- * Libris lånestatus
- * 
- * @param {*} req 
- * @param {*} res 
- */
+//Libris lånestatus
 async function getlibrisLS(req, res) {
     try {
         let lang = req.query.lang || 'sv'
@@ -236,10 +220,88 @@ async function getlibrisLS(req, res) {
     }
 }
 
+async function getHoldShelfNo(req, res) {
+    try {
+        let currentnumber;
+        let holdshelfnumber;
+        let result
+        let crypted_primaryid = encrypt(req.params.primaryid, JSON.parse(process.env.CIPHER));
+        //hämta aktuell användares högsta löpnummer
+        result = await Model.readHoldShelfMaxNo(crypted_primaryid)
+        if(result.length > 0) {
+            for (const row of result) {
+                currentnumber = row.number
+            }
+        } else {
+            currentnumber = 0;
+        }
+        //hämta aktuell användare och additional_id
+        result = await Model.readHoldShelfUser(crypted_primaryid, req.params.additional_id )
+        //Lägg till ny rad med uppräknat löpnummer om användaren + additional_id inte finns
+        if(result.length == 0) {
+            result = await Model.insertHoldShelfNo(crypted_primaryid, currentnumber + 1, req.params.additional_id )
+        }
+
+        //Hämta den uppdaterade användaren
+        result = await Model.readHoldShelfUser(crypted_primaryid, req.params.additional_id )
+        if(result.length > 0) {
+            for (const row of result) {
+                holdshelfnumber = zeroPad(row.number, 3);
+                userid_encrypted = row.userid_encrypted;
+            }
+        }
+
+        
+        var data = {
+            "records": result.length,
+            "holdshelfnumber": holdshelfnumber,
+            "userid_encrypted": userid_encrypted
+        };
+        xmlres = js2xmlparser.parse("holdshelfnumber",data);
+        res.type('application/xml');
+        res.send(xmlres);
+
+    } catch (err) {
+        res.send("error: " + err)
+    }
+}
+
 async function callAlmaApi(endpointurl, lang = 'sv') {
     const almaresponse = await axios.get(endpointurl)
 
 
+}
+
+
+// Hjälpfunktioner
+
+function zeroPad(num, places) {
+    var zero = places - num.toString().length + 1;
+    return Array(+(zero > 0 && zero)).join("0") + num;
+}
+
+function encrypt(plainstr, cipher)
+{    
+  var plainArr = plainstr.split('');
+  var cryptArr = new Array(plainArr.length);
+
+  for(var i=0;i<cryptArr.length;i++){
+     cryptArr[i] = String.fromCharCode(cipher[plainArr[i].charCodeAt(0)-32]);
+  }
+
+  return cryptArr.join("");
+}
+
+function decrypt(cryptstr)
+{
+  var cryptArr = cryptstr.split('');
+  var plainArr = new Array(cryptArr.length);
+
+  for(var i=0;i<plainArr.length;i++){
+     plainArr[i] =  String.fromCharCode(plain[cipher.indexOf(cryptArr[i].charCodeAt(0))]);
+  }
+
+  return plainArr.join("");
 }
 
 function truncate(str, max, suffix) {
@@ -278,5 +340,6 @@ module.exports = {
     readNewbooks,
     getNewbooksList,
     getNewbooksCarousel,
-    getlibrisLS
+    getlibrisLS,
+    getHoldShelfNo
 };
