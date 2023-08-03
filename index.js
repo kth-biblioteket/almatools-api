@@ -46,7 +46,7 @@ apiRoutes.get("/newbookscarouselpage", Controller.getNewbooksCarousel)
  */
 apiRoutes.get("/librisls", Controller.getlibrisLS)
 
-apiRoutes.get("/holdshelfno/:primaryid/:additional_id", Controller.getHoldShelfNo)
+apiRoutes.get("/holdshelfno/:primaryid/:additional_id", VerifyToken, Controller.getHoldShelfNo)
 
 app.use(process.env.API_ROUTES_PATH, apiRoutes);
 
