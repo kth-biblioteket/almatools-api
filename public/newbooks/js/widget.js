@@ -226,7 +226,7 @@
     var ss = document.createElement("link");
     ss.type = "text/css";
     ss.rel = "stylesheet";
-    ss.href = "https://apps.lib.kth.se/alma/newbooks/css/style.css";
+    ss.href = "https://api.lib.kth.se/almatools/newbooks/css/style.css";
     document.getElementsByTagName("head")[0].appendChild(ss);
 
     
