@@ -293,7 +293,7 @@ async function webhook(req, res, next) {
             // Export Electronic portfolios
             if(req.body.job_instance.job_info.id == 'M47') {
                 if((req.body.job_instance.counter)) {
-                    for (let i=0; i<req.body.job_instance.counter; i++) {
+                    for (let i=0; i<req.body.job_instance.counter.length; i++) {
                         if(req.body.job_instance.counter[i].type.value == "c.jobs.bibExport.link") {
                             job_instance_filename = req.body.job_instance.counter[i].value;
                         }
