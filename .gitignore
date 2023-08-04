@@ -3,3 +3,5 @@ config.js
 .env
 *.env
 test.js
+*.txt
+*.zip

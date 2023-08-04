@@ -1,6 +1,6 @@
 'use strict';
 
-require('dotenv').config({path:'almatools-api.env'})
+require('dotenv').config({ path: 'almatools-api.env' })
 
 const jwt = require("jsonwebtoken");
 const VerifyToken = require('./VerifyToken');
@@ -22,15 +22,15 @@ const socketIo = require("socket.io");
 
 app.set("view engine", "ejs");
 
-const whitelist = process.env.CORS_WHITELIST.split(", "); 
-app.use(cors({origin: whitelist}));
+const whitelist = process.env.CORS_WHITELIST.split(", ");
+app.use(cors({ origin: whitelist }));
 
 app.use(express.static(path.join(__dirname, "public")));
 
 const apiRoutes = express.Router();
 
 apiRoutes.get("/", async function (req, res, next) {
-	res.json('Welcome to KTH Biblioteket almatools api')
+    res.json('Welcome to KTH Biblioteket almatools api')
 });
 
 apiRoutes.get("/newbooks", Controller.readNewbooks)
@@ -46,7 +46,21 @@ apiRoutes.get("/newbookscarouselpage", Controller.getNewbooksCarousel)
  */
 apiRoutes.get("/librisls", Controller.getlibrisLS)
 
+/**
+ * Holdshelf nummer som skickas till låntagare och skrivs ut på plocklappar
+ * 
+ */
 apiRoutes.get("/holdshelfno/:primaryid/:additional_id", VerifyToken, Controller.getHoldShelfNo)
+
+/**
+ * Alma Webhooks
+ * 
+ */
+apiRoutes.get('/webhook', function (req, res, next) {
+    res.json({ challenge: req.query.challenge });
+});
+
+apiRoutes.post('/webhook', Controller.webhook);
 
 app.use(process.env.API_ROUTES_PATH, apiRoutes);
 
@@ -55,7 +69,7 @@ const server = app.listen(process.env.PORT || 3002, function () {
     console.log("App now running on port", port);
 });
 
-const io = socketIo(server, {path: process.env.SOCKETIOPATH})
+const io = socketIo(server, { path: process.env.SOCKETIOPATH })
 
 const sockets = {}
 

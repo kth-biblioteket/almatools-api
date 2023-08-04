@@ -2,6 +2,11 @@ const Model = require('./Models');
 const xml2js = require('xml2js');
 const axios = require('axios');
 const js2xmlparser = require("js2xmlparser");
+const ftp = require('basic-ftp');
+const archiver = require('archiver');
+const fs = require("fs");
+const path = require('path');
+const crypto = require('crypto')
 
 const translations = require('./translations/translations.json');
 
@@ -272,8 +277,91 @@ async function callAlmaApi(endpointurl, lang = 'sv') {
 
 }
 
+async function webhook(req, res, next) {
+    if (!validateSignature(req.body,
+        process.env.WEBHOOKSECRET,
+        req.get('X-Exl-Signature'))) {
+        return res.status(401).send({ errorMessage: 'Invalid Signature' });
+    }
 
-// Hjälpfunktioner
+    let job_instance_filename = '';
+    var action = req.body.action.toLowerCase();
+    switch (action) {
+        case 'JOB_END':
+            // Export Electronic portfolios
+            if(req.body.job_instance.job_info.id == 'M47') {
+                if((req.body.job_instance.counter)) {
+                    for (let i=0; i<req.body.job_instance.counter; i++) {
+                        if(req.body.job_instance.counter[i].type.value == "c.jobs.bibExport.link") {
+                            job_instance_filename = req.body.job_instance.counter[i].value;
+                        }
+                    }
+                }
+                //Zippa filen och skicka till Libris
+                if(job_instance_filename != '') {
+                    sendFileToFtp({
+                        "ftp_server": process.env.FTP_SERVER_LIBRIS,
+                        "ftp_user": process.env.FTP_USER_LIBRIS,
+                        "ftp_password": process.env.FTP_PASSWORD_LIBRIS,
+                        "zip_file": process.env.TDIG_ZIP_FILE,
+                        "txt_file": job_instance_filename
+                    })
+                }
+            }
+
+        default:
+            console.log('No handler for type', action);
+    }
+
+    res.status(204).send();
+}
+
+async function sendFileToFtp(config) {
+    try {  
+        console.log("Starting ftp...")
+        const client = new ftp.Client();
+
+        try {
+            await client.access({
+                host: config.ftp_server,
+                port: 21,
+                user: config.ftp_user,
+                password: config.ftp_password
+            });
+            console.log("Downloading file...")
+            await client.downloadTo(path.join('./', config.txt_file), config.txt_file)
+
+            console.log("Zipping file...")
+            const zipStream = fs.createWriteStream(config.zip_file);
+            const zipArchive = archiver('zip');
+            zipArchive.pipe(zipStream);
+            const filePath = path.join('./', config.txt_file);
+            zipArchive.append(fs.createReadStream(filePath), { name: config.txt_file });
+            
+            let zipresult = await zipArchive.finalize();
+            console.log("Zipping finished...")
+
+            await client.uploadFrom(config.zip_file, config.zip_file);
+            console.log('File uploaded successfully');
+        } catch (err) {
+            console.error('FTP error:', err);
+            return "error"
+        } finally {
+            client.close();
+            return "success"
+        }
+    } catch(err) {
+        console.log(err)
+        return "error"
+    }
+}
+
+function validateSignature(body, secret, signature) {
+    var hash = crypto.createHmac('SHA256', secret)
+      .update(JSON.stringify(body))
+      .digest('base64');
+    return (hash === signature);
+}
 
 function zeroPad(num, places) {
     var zero = places - num.toString().length + 1;
@@ -341,5 +429,6 @@ module.exports = {
     getNewbooksList,
     getNewbooksCarousel,
     getlibrisLS,
-    getHoldShelfNo
+    getHoldShelfNo,
+    webhook
 };
