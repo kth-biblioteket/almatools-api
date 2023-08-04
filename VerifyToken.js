@@ -15,7 +15,7 @@ function verifyToken(req, res, next) {
     if (req.headers.authorization) {
         try {
             token = req.headers.authorization.slice(7, req.headers.authorization.length);
-            const verified = jwt.verify(token, publicKey, {algorithm: 'RS256'});
+            const verified = jwt.verify(token, publicKeyAlma, {algorithm: 'RS256'});
             next();
         } catch (e) {
             return res.status(401).send({ auth: false, message: 'Failed to authenticate token, ' + e.message });
