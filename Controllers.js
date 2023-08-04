@@ -288,6 +288,7 @@ async function webhook(req, res, next) {
     var action = req.body.action.toLowerCase();
     switch (action) {
         case 'JOB_END':
+        case 'job_end':
             // Export Electronic portfolios
             if(req.body.job_instance.job_info.id == 'M47') {
                 if((req.body.job_instance.counter)) {
