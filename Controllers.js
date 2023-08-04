@@ -286,6 +286,7 @@ async function webhook(req, res, next) {
 
     let job_instance_filename = '';
     var action = req.body.action.toLowerCase();
+    console.log(req.body)
     switch (action) {
         case 'JOB_END':
         case 'job_end':
@@ -309,6 +310,7 @@ async function webhook(req, res, next) {
                     })
                 }
             }
+            break;
 
         default:
             console.log('No handler for type', action);
