@@ -331,21 +331,44 @@ async function sendFileToFtp(config) {
                 user: config.ftp_user,
                 password: config.ftp_password
             });
-            console.log("Downloading file...")
-            await client.downloadTo(path.join('./', config.txt_file), config.txt_file)
+            
+            console.log("Downloading txt-file from ftp-server...")
+            let download_ftp_file = await client.downloadTo(path.join('./', config.txt_file), config.txt_file)
+            console.log(download_ftp_file)
 
-            console.log("Zipping file...")
+            console.log("Zipping txt-file...")
             const zipStream = fs.createWriteStream(config.zip_file);
             const zipArchive = archiver('zip');
             zipArchive.pipe(zipStream);
             const filePath = path.join('./', config.txt_file);
             zipArchive.append(fs.createReadStream(filePath), { name: config.txt_file });
-            
-            let zipresult = await zipArchive.finalize();
+            let zip_result = await zipArchive.finalize();
             console.log("Zipping finished...")
 
-            await client.uploadFrom(config.zip_file, config.zip_file);
-            console.log('File uploaded successfully');
+            console.log('Uploading zip-file to ftp-server...');
+            let ftp_upload = await client.uploadFrom(config.zip_file, config.zip_file);
+            console.log(ftp_upload)
+
+            console.log('Removing txt-file from ftp-server...');
+            let ftp_file_delete = await client.remove(config.txt_file)
+            console.log(ftp_file_delete)
+
+            try {
+                console.log('Removing local txt file');
+                let local_file_delete = fs.unlinkSync(path.join('./', config.txt_file))
+                console.log(`Local file ${config.txt_file} deleted`);
+            } catch(err) {
+                console.log(err)
+            }
+
+            try {
+                console.log('Removing local zip file');
+                let local_file_delete = fs.unlinkSync(path.join('./', config.zip_file))
+                console.log(`Local file ${config.zip_file} deleted`);
+            } catch(err) {
+                console.log(err)
+            }
+            
         } catch (err) {
             console.error('FTP error:', err);
             return "error"
