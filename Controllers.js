@@ -324,6 +324,18 @@ async function webhook(req, res, next) {
     res.status(204).send();
 }
 
+//Autocomplete till Primos sökruta
+async function getPrimoAutoComplete(req, res) {
+    try {
+        let autocomplete = await axios.get(`http://primo-instant-eu.hosted.exlibrisgroup.com:1997/solr/ac?q=${req.query.q}&rows=15&wt=json`)
+        res.json(autocomplete.data);
+    } catch (err) {
+        res.json(err.message);
+    }  
+}
+
+//Funktioner
+
 async function sendFileToFtp(config) {
     try {  
         console.log("Starting ftp...")
@@ -461,5 +473,6 @@ module.exports = {
     getNewbooksCarousel,
     getlibrisLS,
     getHoldShelfNo,
-    webhook
+    webhook,
+    getPrimoAutoComplete
 };
