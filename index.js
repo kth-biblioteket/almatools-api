@@ -62,6 +62,15 @@ apiRoutes.get('/webhook', function (req, res, next) {
 
 apiRoutes.post('/webhook', Controller.webhook);
 
+apiRoutes.get('/primoautocomplete', async function (req, res, next) {
+    try {
+        let autocomplete = await axios.get('http://primo-instant-eu.hosted.exlibrisgroup.com:1997/solr/ac?q=java&rows=15&wt=json')
+        res.json(autocomplete.data);
+    } catch (err) {
+        res.json(err.message);
+    }  
+});
+
 app.use(process.env.API_ROUTES_PATH, apiRoutes);
 
 const server = app.listen(process.env.PORT || 3002, function () {
