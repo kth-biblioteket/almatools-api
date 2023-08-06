@@ -332,7 +332,7 @@ async function getPrimoAutoComplete(req, res) {
             res.json(autocomplete.data);
         }
         else {
-            res.json({'Please provide a search term q (ex: q=java)'});
+            res.json('Please provide a search term q (ex: q=java)');
         }
     } catch (err) {
         res.json(err.message);
