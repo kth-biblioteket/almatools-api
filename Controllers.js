@@ -327,8 +327,13 @@ async function webhook(req, res, next) {
 //Autocomplete till Primos sökruta
 async function getPrimoAutoComplete(req, res) {
     try {
-        let autocomplete = await axios.get(`http://primo-instant-eu.hosted.exlibrisgroup.com:1997/solr/ac?q=${req.query.q || ''}&rows=15&wt=json`)
-        res.json(autocomplete.data);
+        if (req.query.q) {
+            let autocomplete = await axios.get(`http://primo-instant-eu.hosted.exlibrisgroup.com:1997/solr/ac?q=${req.query.q}&rows=15&wt=json`)
+            res.json(autocomplete.data);
+        }
+        else {
+            res.json({'Please provide a search term q (ex: q=java)'});
+        }
     } catch (err) {
         res.json(err.message);
     }  
