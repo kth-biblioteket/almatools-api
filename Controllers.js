@@ -328,7 +328,7 @@ async function webhook(req, res, next) {
 async function getPrimoAutoComplete(req, res) {
     try {
         if (req.query.q) {
-            let autocomplete = await axios.get(`http://primo-instant-eu.hosted.exlibrisgroup.com:1997/solr/ac?q=${req.query.q}&rows=15&wt=json`)
+            let autocomplete = await axios.get(`http://primo-instant-eu.hosted.exlibrisgroup.com:1997/solr/ac?q=${req.query.q}&rows=${req.query.rows || 15}&wt=json`)
             res.json(autocomplete.data);
         }
         else {
