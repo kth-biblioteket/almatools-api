@@ -291,31 +291,34 @@ async function webhook(req, res, next) {
             case 'JOB_END':
             case 'job_end':
                 // Export Electronic portfolios
-                if (typeof req.body.job_instance.job_info.id !== 'undefined') {
-                    if(req.body.job_instance.job_info.id == 'M47') {
-                        if((req.body.job_instance.counter)) {
-                            for (let i=0; i<req.body.job_instance.counter.length; i++) {
-                                if(req.body.job_instance.counter[i].type.value == "c.jobs.bibExport.link") {
-                                    job_instance_filename = req.body.job_instance.counter[i].value;
+                if (typeof req.body.job_instance !== 'undefined') {
+                    if (typeof req.body.job_instance.job_info !== 'undefined') {
+                        if (typeof req.body.job_instance.job_info.id !== 'undefined') {
+                            if(req.body.job_instance.job_info.id == 'M47') {
+                                if((req.body.job_instance.counter)) {
+                                    for (let i=0; i<req.body.job_instance.counter.length; i++) {
+                                        if(req.body.job_instance.counter[i].type.value == "c.jobs.bibExport.link") {
+                                            job_instance_filename = req.body.job_instance.counter[i].value;
+                                        }
+                                    }
+                                }
+                                //Zippa filen och skicka till Libris
+                                if(job_instance_filename != '') {
+                                    sendFileToFtp({
+                                        "ftp_server": process.env.FTP_SERVER_LIBRIS,
+                                        "ftp_user": process.env.FTP_USER_LIBRIS,
+                                        "ftp_password": process.env.FTP_PASSWORD_LIBRIS,
+                                        "zip_file": process.env.TDIG_ZIP_FILE,
+                                        "txt_file": job_instance_filename
+                                    })
                                 }
                             }
-                        }
-                        //Zippa filen och skicka till Libris
-                        if(job_instance_filename != '') {
-                            sendFileToFtp({
-                                "ftp_server": process.env.FTP_SERVER_LIBRIS,
-                                "ftp_user": process.env.FTP_USER_LIBRIS,
-                                "ftp_password": process.env.FTP_PASSWORD_LIBRIS,
-                                "zip_file": process.env.TDIG_ZIP_FILE,
-                                "txt_file": job_instance_filename
-                            })
                         }
                     }
                 }
                 break;
 
             default:
-                console.log('No handler for type', action);
         }
     } catch(err) {
         console.log(err)
@@ -342,7 +345,8 @@ async function getPrimoAutoComplete(req, res) {
 //Funktioner
 
 async function sendFileToFtp(config) {
-    try {  
+    try {
+        console.log(new Date().toLocaleString());
         console.log("Starting ftp...")
         const client = new ftp.Client();
 
@@ -387,6 +391,7 @@ async function sendFileToFtp(config) {
                 console.log('Removing local zip file');
                 let local_file_delete = fs.unlinkSync(path.join('./', config.zip_file))
                 console.log(`Local file ${config.zip_file} deleted`);
+                console.log(new Date().toLocaleString());
             } catch(err) {
                 console.log(err)
             }

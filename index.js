@@ -68,6 +68,7 @@ app.use(process.env.API_ROUTES_PATH, apiRoutes);
 
 const server = app.listen(process.env.PORT || 3002, function () {
     const port = server.address().port;
+    console.log(new Date().toLocaleString());
     console.log("App now running on port", port);
 });
 
