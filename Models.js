@@ -40,7 +40,7 @@ const readNewbooks = (req) => {
   //sql += ` ORDER BY activationdate DESC`;
 
   return new Promise(function (resolve, reject) {    
-      database.db.query(database.mysql.format(sql[req.query.activationdate]),(err, result) => {
+      database.db.query(database.mysql.format(sql,[req.query.activationdate]),(err, result) => {
           if(err) {
             console.error('Error executing query:', err);
             reject(err.message)
