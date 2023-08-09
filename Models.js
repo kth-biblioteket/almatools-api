@@ -3,6 +3,7 @@ const database = require('./db');
 //Hämta alla böcker från och med aktiveringsdatum
 const readNewbooks = (req) => {
 
+  let activationdate = req.query.activationdate || '2000-01-01';
   let sql = `SELECT id, mmsid, recordid, isbn, isbnprimo, thumbnail, coverurl, 
                   title, DATE_FORMAT(activationdate, "%Y-%m-%d") as activationdate, 
                   publicationdate, dewey, subject, category, subcategory, booktype 
@@ -40,7 +41,7 @@ const readNewbooks = (req) => {
   //sql += ` ORDER BY activationdate DESC`;
 
   return new Promise(function (resolve, reject) {    
-      database.db.query(database.mysql.format(sql,[req.query.activationdate]),(err, result) => {
+      database.db.query(database.mysql.format(sql,[activationdate]),(err, result) => {
           if(err) {
             console.error('Error executing query:', err);
             reject(err.message)
