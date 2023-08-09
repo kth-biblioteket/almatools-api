@@ -7,8 +7,10 @@ const readNewbooks = (req) => {
                   title, DATE_FORMAT(activationdate, "%Y-%m-%d") as activationdate, 
                   publicationdate, dewey, subject, category, subcategory, booktype 
                   FROM newbooks
-                  WHERE 1`;
+                  WHERE activationdate >= ?
+                  ORDER BY activationdate DESC`;
 
+    /*
   if(req.query.activationdate) {
       sql += ` AND activationdate >= '${req.query.activationdate}'`
   }
@@ -33,11 +35,12 @@ const readNewbooks = (req) => {
       }
       
   }
+  */
 
-  sql += ` ORDER BY activationdate DESC`;
+  //sql += ` ORDER BY activationdate DESC`;
 
   return new Promise(function (resolve, reject) {    
-      database.db.query(database.mysql.format(sql),(err, result) => {
+      database.db.query(database.mysql.format(sql[req.query.activationdate]),(err, result) => {
           if(err) {
             console.error('Error executing query:', err);
             reject(err.message)
