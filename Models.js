@@ -2,7 +2,12 @@ const database = require('./db');
 
 //Hämta alla böcker från och med aktiveringsdatum
 const readNewbooks = (req) => {
+    let showwithnocover = req.query.showwithnocover || 'true'
+    let coverurl = '%images/book.png%'
 
+    if(showwithnocover === 'true') {
+        coverurl = '%nocoverurl%'
+    }
     let activationdate = req.query.activationdate || '2020-01-01';
     let publicationdate = req.query.publicationdate || '2020';
     let sql = `SELECT id, mmsid, recordid, isbn, isbnprimo, thumbnail, coverurl, 
@@ -11,6 +16,7 @@ const readNewbooks = (req) => {
                     FROM newbooks
                     WHERE activationdate >= ?
                     AND  cast(publicationdate AS SIGNED) >= ?
+                    AND coverurl NOT LIKE ?
                     ORDER BY activationdate DESC`;
   
       /*
@@ -43,7 +49,7 @@ const readNewbooks = (req) => {
     //sql += ` ORDER BY activationdate DESC`;
   
     return new Promise(function (resolve, reject) {    
-        database.db.query(database.mysql.format(sql,[activationdate, publicationdate]),(err, result) => {
+        database.db.query(database.mysql.format(sql,[activationdate, publicationdate, coverurl]),(err, result) => {
             if(err) {
               console.error('Error executing query:', err);
               reject(err.message)
