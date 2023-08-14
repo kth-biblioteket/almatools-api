@@ -497,12 +497,12 @@ async function getCitationDataFromScopus(req, res) {
     if (req.query.doi) {
         try {
             let elsevier = await axios.post(process.env.ELSEVIER_URL + `?query=DOI(${req.query.doi})&field=citedby-count`,
-                {
-                    headers:{
-                        'X-ELS-APIKey': process.env.ELSEVIER_APIKEY,
-                        'Accept': 'application/json'
-                    }
-                })
+                    {}, {
+                            headers:{
+                                'X-ELS-APIKey': process.env.ELSEVIER_APIKEY,
+                                'Accept': 'application/json'
+                            }
+                        })
 
             let json
             let sourceURL
