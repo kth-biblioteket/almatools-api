@@ -476,9 +476,9 @@ async function getCitationDataFromWoS(req, res) {
                 } else {
                     json = {
                         "wos": {
-                            "timesCited": timesCited,
-                            "sourceURL": sourceURL,
-                            "citingArticlesURL": citingArticlesURL 
+                            "timesCited": "",
+                            "sourceURL": "",
+                            "citingArticlesURL": "" 
                         }
                     }
                 }
