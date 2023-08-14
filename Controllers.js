@@ -2,6 +2,7 @@ const Model = require('./Models');
 const xml2js = require('xml2js');
 const axios = require('axios');
 const js2xmlparser = require("js2xmlparser");
+const xml2jsparser = require("xml2js");
 const ftp = require('basic-ftp');
 const archiver = require('archiver');
 const fs = require("fs");
