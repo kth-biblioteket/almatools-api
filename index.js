@@ -80,6 +80,8 @@ apiRoutes.post("/activatepatron", Controller.ActivatePatron)
  */
 apiRoutes.get("/citationdata/wos", Controller.getCitationDataFromWoS) 
 
+apiRoutes.get("/citationdata/elsevier", Controller.getCitationDataFromScopus) 
+
 app.use(process.env.API_ROUTES_PATH, apiRoutes);
 
 const server = app.listen(process.env.PORT || 3002, function () {

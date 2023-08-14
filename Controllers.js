@@ -488,10 +488,54 @@ async function getCitationDataFromWoS(req, res) {
             res.json(err.message);
         }
     } else {
-        res.json('Please provide a doi parameter(?doi=xxxxx');
+        res.json('Please provide a doi parameter(?doi=xxxxx)');
     }
 }
 
+//
+async function getCitationDataFromScopus(req, res) {
+    if (req.query.doi) {
+        try {
+            let elsevier = await axios.post(process.env.ELSEVIER_URL + `?query=DOI(${req.query.doi})&field=citedby-count`,
+                {
+                    headers:{
+                        'X-ELS-APIKey': process.env.ELSEVIER_APIKEY,
+                        'Accept': 'application/json'
+                    }
+                })
+
+            let json
+            let sourceURL
+
+            if(elsevier.data['search-results']['opensearch:totalResults'] > 0) {
+                console.log(elsevier.data['search-results'])
+                let xmlresp = await axios.post(elsevier.data['search-results'].entry[0]['prism:url'])
+                for(i=0;i<xmlresp.data['abstracts-retrieval-response'].coredata.link.length;i++) {
+                    sourceURL = xmlresp.data['abstracts-retrieval-response'].coredata.link[i]['@href']
+                }
+                json = {
+                    "elsevier": {
+                        "timesCited": elsevier.data['search-results'].entry[0]['citedby-count'],
+                        "sourceURL": sourceURL,
+                        "citingArticlesURL": "" 
+                    }
+                }
+            } else {
+                json = {
+                    "elsevier": {
+                        "timesCited": "",
+                        "sourceURL": "",
+                        "citingArticlesURL": "" 
+                    }
+                }
+            }
+        } catch (err) {
+            res.json(err.message);
+        }
+    } else {
+        res.json('Please provide a doi parameter(?doi=xxxxx)');
+    }
+}
 //Funktioner
 
 async function sendFileToFtp(config) {
@@ -648,5 +692,6 @@ module.exports = {
     webhook,
     getPrimoAutoComplete,
     ActivatePatron,
-    getCitationDataFromWoS
+    getCitationDataFromWoS,
+    getCitationDataFromScopus
 };
