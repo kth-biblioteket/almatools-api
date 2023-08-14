@@ -275,8 +275,6 @@ async function getHoldShelfNo(req, res) {
 
 async function callAlmaApi(endpointurl, lang = 'sv') {
     const almaresponse = await axios.get(endpointurl)
-
-
 }
 
 async function webhook(req, res, next) {
@@ -342,6 +340,155 @@ async function getPrimoAutoComplete(req, res) {
     } catch (err) {
         res.json(err.message);
     }  
+}
+
+//Aktivera almakonto
+async function ActivatePatron(req, res) {
+
+    let decodedtoken
+    try {
+        decodedtoken = await verifyexlibristoken(req.query.jwt)
+    } catch(err) {
+        console.log(err)
+    }
+
+    if (decodedtoken!=0) {
+        try {
+            //hämta user objekt
+            almapiurl = process.env.ALMAPIENDPOINT + 'users/' + decodedtoken.userName + '?apikey=' + process.env.ALMAAPIKEY
+            const almauser = await axios.get(almapiurl)
+            
+            //Lägg till user note i hämtat userobjekt
+            almauser.data.user_note.push({
+                "note_type": {
+                    "value": "POPUP",
+                    "desc": "General"
+                },
+                "note_text": "Activated from Primo",
+                "segment_type": "Internal"
+            })
+            //Uppdatera patron rollen i hämtat userobjekt till att vara aktiv
+            let patronrole = false
+            for (let index = 0; index < almauser.data.user_role.length; index++) {
+                const element = almauser.data.user_role[index].role_type.desc;
+                if(element.indexOf("Patron") !== -1) {
+                    almauser.data.user_role[index].status.desc="Active"
+                    almauser.data.user_role[index].status.value="ACTIVE"
+                    result = "OK"
+                    patronrole = true
+                    break;
+                }
+            }
+            if(!patronrole) {
+                res.status(400)
+                res.json("User does not have a patron role!");
+                return;
+            }
+            //Uppdatera pincode
+            if(req.body.pin_number) {
+                almauser.data.pin_number = req.body.pin_number
+            } else {
+                res.status(400)
+                res.json("Error, No pincode provided")
+                return;
+            }
+
+            //Uppdatera preferred language
+            if(req.body.language_value && req.body.language_desc) {
+                almauser.data.preferred_language.value = req.body.language_value
+                almauser.data.preferred_language.desc = req.body.language_desc
+            } else {
+                res.status(400)
+                res.json("Error, No preferred language provided")
+                return;
+            }
+            
+            const almaresult = await axios.put(almapiurl, almauser.data)
+            
+            res.json("success");
+        } catch(err) {
+            res.status(400)
+            res.json(err)
+        }
+    } else {
+        res.status(400)
+        res.json("None or not valid token")
+}
+    
+}
+
+//
+async function getCitationDataFromWoS(req, res) {
+    if (req.query.doi) {
+        try {
+            let xml = `<?xml version="1.0" encoding="UTF-8" ?>
+                        <request xmlns="http://www.isinet.com/xrpc42" src="app.id=API">
+                            <fn name="LinksAMR.retrieve">
+                                <list>
+                                    <map>
+                                        <val name="username">${process.env.WOS_USER}</val>
+                                        <val name="password">${process.env.WOS_PASSWORD}</val>
+                                    </map>
+                                    <!-- WHAT IS REQUESTED -->
+                                    <map>
+                                        <list name="WOS">
+                                            <val>timesCited</val>
+                                            <val>ut</val>
+                                            <val>doi</val>
+                                            <val>pmid</val>
+                                            <val>sourceURL</val>
+                                            <val>citingArticlesURL</val>
+                                            <val>relatedRecordsURL</val>
+                                        </list>
+                                    </map>
+                                    <!-- LOOKUP DATA -->
+                                    <map>
+                                        <!-- QUERY "cite_1" -->
+                                        <map name="cite_1">
+                                            <val name="doi">${req.query.doi}</val>
+                                        </map> <!-- end of cite_1-->      
+                                    </map> <!-- end of citations -->
+                                </list>
+                            </fn>
+                        </request>`
+            let wos = await axios.post(process.env.WOS_URL,xml)
+            const xmlData = wos.data;
+
+            let json
+            xml2jsparser.parseString(xmlData, (err, result) => {
+                if (err) {
+                    console.error('Error parsing XML:', err);
+                    res.json('Error parsing XML:', err);
+                    return;
+                }
+                if (!result.response.fn[0].map[0].map[0].map[0].val.find(item => item.$.name === 'message')) {
+                    const timesCited = result.response.fn[0].map[0].map[0].map[0].val.find(item => item.$.name === 'timesCited')._;
+                    const sourceURL = result.response.fn[0].map[0].map[0].map[0].val.find(item => item.$.name === 'sourceURL')._;
+                    const citingArticlesURL = result.response.fn[0].map[0].map[0].map[0].val.find(item => item.$.name === 'citingArticlesURL')._;
+                    json = {
+                        "wos": {
+                            "timesCited": timesCited,
+                            "sourceURL": sourceURL,
+                            "citingArticlesURL": citingArticlesURL 
+                        }
+                    }
+                } else {
+                    json = {
+                        "wos": {
+                            "timesCited": timesCited,
+                            "sourceURL": sourceURL,
+                            "citingArticlesURL": citingArticlesURL 
+                        }
+                    }
+                }
+                res.send(json);
+            });
+        } catch (err) {
+            res.json(err.message);
+        }
+    } else {
+        res.json('Please provide a doi parameter(?doi=xxxxx');
+    }
 }
 
 //Funktioner
@@ -479,6 +626,18 @@ function getLastDayOfWeek(date) {
     return formatDate(lastDayOfWeek);
 }
 
+async function verifyexlibristoken(tokenValue) {
+    try {
+        const exlibrisjwks = await axios.get(process.env.EXLIBRISPUBLICKEY_URL)
+        var pem = jwkToPem(exlibrisjwks.data.keys[1]);
+        var token = jwt.verify( tokenValue, pem )
+        return token
+    } catch {
+        return 0
+    }
+
+}
+
 module.exports = {
     readNewbooks,
     getNewbooksList,
@@ -486,5 +645,7 @@ module.exports = {
     getlibrisLS,
     getHoldShelfNo,
     webhook,
-    getPrimoAutoComplete
+    getPrimoAutoComplete,
+    ActivatePatron,
+    getCitationDataFromWoS
 };

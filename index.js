@@ -62,7 +62,23 @@ apiRoutes.get('/webhook', function (req, res, next) {
 
 apiRoutes.post('/webhook', Controller.webhook);
 
+/***
+ * 
+ * Autocomplete funktion till sökrutan för primo på bibliotekets startsida (polopoly)
+ */
 apiRoutes.get('/primoautocomplete', Controller.getPrimoAutoComplete) 
+
+/***
+ * 
+ * Aktivera användarkonto i Alma för de med KTH-konto
+ */
+apiRoutes.post("/activatepatron", VerifyToken, Controller.ActivatePatron) 
+
+/***
+ * 
+ * Hämta citeringsdata från WebOfScience
+ */
+apiRoutes.get("/citationdata/wos", VerifyToken, Controller.getCitationDataFromWoS) 
 
 app.use(process.env.API_ROUTES_PATH, apiRoutes);
 
