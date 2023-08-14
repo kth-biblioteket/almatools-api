@@ -72,13 +72,13 @@ apiRoutes.get('/primoautocomplete', Controller.getPrimoAutoComplete)
  * 
  * Aktivera användarkonto i Alma för de med KTH-konto
  */
-apiRoutes.post("/activatepatron", VerifyToken, Controller.ActivatePatron) 
+apiRoutes.post("/activatepatron", Controller.ActivatePatron) 
 
 /***
  * 
  * Hämta citeringsdata från WebOfScience
  */
-apiRoutes.get("/citationdata/wos", VerifyToken, Controller.getCitationDataFromWoS) 
+apiRoutes.get("/citationdata/wos", Controller.getCitationDataFromWoS) 
 
 app.use(process.env.API_ROUTES_PATH, apiRoutes);
 
