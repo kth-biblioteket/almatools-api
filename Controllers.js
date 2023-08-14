@@ -529,6 +529,7 @@ async function getCitationDataFromScopus(req, res) {
                     }
                 }
             }
+            res.send(json);
         } catch (err) {
             res.json(err.message);
         }
