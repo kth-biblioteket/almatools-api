@@ -508,7 +508,6 @@ async function getCitationDataFromScopus(req, res) {
             let sourceURL
 
             if(elsevier.data['search-results']['opensearch:totalResults'] > 0) {
-                console.log(elsevier.data['search-results'])
                 let xmlresp = await axios.post(elsevier.data['search-results'].entry[0]['prism:url'])
                 for(i=0;i<xmlresp.data['abstracts-retrieval-response'].coredata.link.length;i++) {
                     sourceURL = xmlresp.data['abstracts-retrieval-response'].coredata.link[i]['@href']
