@@ -39,6 +39,7 @@ async function getNewbooksList(req, res) {
             bookimageurl: process.env.BOOKIMAGEURL,
             book200imageurl: process.env.BOOK200IMAGEURL,
             nojquery: req.query.nojquery || false,
+            nostyle: req.query.nostyle || false
         }
         res.render('pages/newbookslist', 
         {

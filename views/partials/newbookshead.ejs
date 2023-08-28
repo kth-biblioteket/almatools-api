@@ -1,185 +1,187 @@
-<style>
-body {
-    font-family: "Open Sans",Arial,"Helvetica Neue",helvetica,sans-serif;
-    font-size: 1rem;
-    font-weight: 400;
-    line-height: 1.5;
-}
-
-a {
-    color: #006cb7;
-    text-decoration: none;
-    background-color: transparent;
-}
-
-*, ::after, ::before {
-    box-sizing: border-box;
-}
-
-.newbooks {
-    display:flex;
-    flex-wrap:wrap;
-}
-
-.bookitem {
-    display: flex;
-    flex-direction:column;
-    padding-bottom:10px;
-    width:200px;
-    margin-right: 5px
-}
-
-.bookcoverimage {
-    width: 200px;
-    height: 260px;
-    border: 1px solid #ccc;
-    margin-bottom: 10px;
-}
-
-.shape {
-    display: flex;
-    align-items: center;
-    text-align: center;
-    background-color: rgba(36,160,216,1);
-    width: 200px;
-    height: 260px;
-    color: white;
-    position: relative;
-    padding: 20px;
-    margin-bottom: 10px;
-}
-
-.bookshelfshape {
-    width:100%;
-    height:100%;
-    border:none
-}
-
-.bookdata>div {
-    padding-bottom:5px
-}
-
-.kthbookshelf {
-    width: 100%; 
-}
-
-.shelf-image-container {
-    margin: 0 auto;
-    padding: 0 0 8px 0;
-    text-decoration: none;
-}
-.shelf-image-container {
-    width: 158px;
-    height: 200px;
-    margin: 20px 5px 0 5px;
-    text-align: center;
-}
-.shelf-image-container image {
-    border: none;
-}
-
-.shelf-image-substitute {
-    overflow: hidden;
-    position: relative;
-    color: white;
-    font-family: Verdana, Verdana, Geneva, sans-serif;
-    display: inline-block;
-    text-align: center;
-    vertical-align: top;
-    padding: 0 6px 0 14px;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.3);
-}
-.shelf-image-substitute {
-    width: 125px;
-    height: 192px;
-    font-size: 18px;
-}
-.shelf-image-bg {
-    position: absolute;
-    left: 0;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    background-size: 100% 100%;
-}
-.shelf-image-title,
-.shelf-image-subtitle,
-.shelf-image-authors {
-    display: inline-block;
-    z-index: 0;
-}
-.shelf-image-title {
-    position: relative;
-    padding-top: 0.5em;
-}
-.shelf-image-subtitle {
-    position: relative;
-    padding-top: 0.5em;
-    font-size: 9px;
-}
-.shelf-image-authors {
-    position: absolute;
-    font-size: 11px;
-    padding: 1em 0 1.5em 0;
-    bottom: 0;
-    left: 14px;
-    right: 6px;
-}
-.shelf-image-authors.static {
-    position: static;
-}
-
-.shelf-ie-no-text-shadow {
-    text-shadow: none;
-}
-.shelf-ie-box-shadow {
-    position: absolute;
-    filter: progid:DXImageTransform.Microsoft.Blur(PixelRadius='5',MakeShadow='true',ShadowOpacity='0.25');
-    background: black;
-}
-.shelf-ie-text-shadow {
-    position: absolute;
-    left: -2px;
-    right: 2px;
-    top: -1px;
-    bottom: 1px;
-    z-index: -1;
-    filter: progid:DXImageTransform.Microsoft.Blur(PixelRadius='2',MakeShadow='true',ShadowOpacity='0.25');
-}
-.shelf-image-title > .shelf-ie-text-shadow {
-    padding-top: 0.5em;
-}
-.shelf-image-subtitle > .shelf-ie-text-shadow {
-    padding-top: 0.5em;
-}
-.shelf-image-authors > .shelf-ie-text-shadow {
-    padding: 1em 0 1.5em 0;
-}
-
-@media (max-width: 768px) {
-
-    .kthbookshelf {
-        max-height: 100%;
+<% if (!almatoolsconfig.nostyle) { %>
+    <style>
+    body {
+        font-family: "Open Sans",Arial,"Helvetica Neue",helvetica,sans-serif;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
     }
-}
 
-@media (max-width: 500px) {
+    a {
+        color: #006cb7;
+        text-decoration: none;
+        background-color: transparent;
+    }
+
+    *, ::after, ::before {
+        box-sizing: border-box;
+    }
+
+    .newbooks {
+        display:flex;
+        flex-wrap:wrap;
+    }
+
     .bookitem {
-        width:145px;
+        display: flex;
+        flex-direction:column;
+        padding-bottom:10px;
+        width:200px;
+        margin-right: 5px
     }
-    
+
     .bookcoverimage {
-        width:145px;
-        height:189px;
+        width: 200px;
+        height: 260px;
+        border: 1px solid #ccc;
+        margin-bottom: 10px;
     }
-    
-    .shape{
-        width:145px;
-        height:189px;
+
+    .shape {
+        display: flex;
+        align-items: center;
+        text-align: center;
+        background-color: rgba(36,160,216,1);
+        width: 200px;
+        height: 260px;
+        color: white;
+        position: relative;
+        padding: 20px;
+        margin-bottom: 10px;
+    }
+
+    .bookshelfshape {
+        width:100%;
+        height:100%;
+        border:none
+    }
+
+    .bookdata>div {
+        padding-bottom:5px
     }
 
     .kthbookshelf {
-        max-height: 100%;
+        width: 100%; 
     }
-}
-</style>
+
+    .shelf-image-container {
+        margin: 0 auto;
+        padding: 0 0 8px 0;
+        text-decoration: none;
+    }
+    .shelf-image-container {
+        width: 158px;
+        height: 200px;
+        margin: 20px 5px 0 5px;
+        text-align: center;
+    }
+    .shelf-image-container image {
+        border: none;
+    }
+
+    .shelf-image-substitute {
+        overflow: hidden;
+        position: relative;
+        color: white;
+        font-family: Verdana, Verdana, Geneva, sans-serif;
+        display: inline-block;
+        text-align: center;
+        vertical-align: top;
+        padding: 0 6px 0 14px;
+        text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+    .shelf-image-substitute {
+        width: 125px;
+        height: 192px;
+        font-size: 18px;
+    }
+    .shelf-image-bg {
+        position: absolute;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        background-size: 100% 100%;
+    }
+    .shelf-image-title,
+    .shelf-image-subtitle,
+    .shelf-image-authors {
+        display: inline-block;
+        z-index: 0;
+    }
+    .shelf-image-title {
+        position: relative;
+        padding-top: 0.5em;
+    }
+    .shelf-image-subtitle {
+        position: relative;
+        padding-top: 0.5em;
+        font-size: 9px;
+    }
+    .shelf-image-authors {
+        position: absolute;
+        font-size: 11px;
+        padding: 1em 0 1.5em 0;
+        bottom: 0;
+        left: 14px;
+        right: 6px;
+    }
+    .shelf-image-authors.static {
+        position: static;
+    }
+
+    .shelf-ie-no-text-shadow {
+        text-shadow: none;
+    }
+    .shelf-ie-box-shadow {
+        position: absolute;
+        filter: progid:DXImageTransform.Microsoft.Blur(PixelRadius='5',MakeShadow='true',ShadowOpacity='0.25');
+        background: black;
+    }
+    .shelf-ie-text-shadow {
+        position: absolute;
+        left: -2px;
+        right: 2px;
+        top: -1px;
+        bottom: 1px;
+        z-index: -1;
+        filter: progid:DXImageTransform.Microsoft.Blur(PixelRadius='2',MakeShadow='true',ShadowOpacity='0.25');
+    }
+    .shelf-image-title > .shelf-ie-text-shadow {
+        padding-top: 0.5em;
+    }
+    .shelf-image-subtitle > .shelf-ie-text-shadow {
+        padding-top: 0.5em;
+    }
+    .shelf-image-authors > .shelf-ie-text-shadow {
+        padding: 1em 0 1.5em 0;
+    }
+
+    @media (max-width: 768px) {
+
+        .kthbookshelf {
+            max-height: 100%;
+        }
+    }
+
+    @media (max-width: 500px) {
+        .bookitem {
+            width:145px;
+        }
+        
+        .bookcoverimage {
+            width:145px;
+            height:189px;
+        }
+        
+        .shape{
+            width:145px;
+            height:189px;
+        }
+
+        .kthbookshelf {
+            max-height: 100%;
+        }
+    }
+    </style>
+<% } %>
