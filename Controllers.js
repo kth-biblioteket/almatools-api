@@ -8,6 +8,8 @@ const archiver = require('archiver');
 const fs = require("fs");
 const path = require('path');
 const crypto = require('crypto')
+const jwt = require("jsonwebtoken");
+const jwkToPem = require('jwk-to-pem');
 
 const translations = require('./translations/translations.json');
 
@@ -406,7 +408,7 @@ async function ActivatePatron(req, res) {
             }
             
             const almaresult = await axios.put(almapiurl, almauser.data)
-            
+
             res.json("success");
         } catch(err) {
             res.status(400)
@@ -678,7 +680,8 @@ async function verifyexlibristoken(tokenValue) {
         var pem = jwkToPem(exlibrisjwks.data.keys[1]);
         var token = jwt.verify( tokenValue, pem )
         return token
-    } catch {
+    } catch(err) {
+        console.log(err)
         return 0
     }
 
