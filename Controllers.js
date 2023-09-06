@@ -412,7 +412,8 @@ async function ActivatePatron(req, res) {
             res.json("success");
         } catch(err) {
             res.status(400)
-            res.json(err)
+            res.json(err.message)
+            console.log(err)
         }
     } else {
         res.status(400)
