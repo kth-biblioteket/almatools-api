@@ -31,7 +31,8 @@ async function getNewbooksList(req, res) {
         let lang = req.query.lang || 'sv'
         let almatoolsconfig = {
             showwithnocover : req.query.showwithnocover || 'true',
-            primoview :  req.query.primoview || '46KTH_VU1_L', 
+            primoview :  req.query.primoview || '46KTH_VU1_L',
+            target: req.query.target || '_blank',
             nroftitlestoshow : parseInt(req.query.nroftitlestoshow) || 20,
             min_publication_date: req.query.minpublicationdate || '2020-05-01',
             booktype: req.query.booktype || 'all',
@@ -60,6 +61,7 @@ async function getNewbooksCarousel(req, res) {
     try {
         let result = await Model.readNewbooks(req)
         let primoview = req.query.primoview || '46KTH_VU1_L'
+        let target = req.query.target || '_blank'
         let lang = req.query.lang || 'sv'
         let books = [];
         let image;
@@ -78,7 +80,7 @@ async function getNewbooksCarousel(req, res) {
                 image: image,
                 title: result[i].title.replace('/', '').trim().substring(0,150),
                 description: booktype,
-                target: "_new",
+                target: target,
                 authors: [ result[i].subject ]
             });
         }
