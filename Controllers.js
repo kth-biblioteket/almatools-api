@@ -28,13 +28,13 @@ async function readNewbooks(req, res) {
 async function getNewbooksList(req, res) {
     try {
         let result = await Model.readNewbooks(req)
-        let lang = req.query.lang || 'sv'
         let almatoolsconfig = {
             showwithnocover : req.query.showwithnocover || 'true',
+            primoview :  req.query.primoview || '46KTH_VU1_L', 
             nroftitlestoshow : parseInt(req.query.nroftitlestoshow) || 20,
             min_publication_date: req.query.minpublicationdate || '2020-05-01',
             booktype: req.query.booktype || 'all',
-            lang: lang,
+            lang: req.query.lang || 'sv',
             bookitemtype_P_text : translations[lang].bookitemtype_P_text,
             bookitemtype_E_text : translations[lang].bookitemtype_E_text,
             bookitempublishedtext : translations[lang].bookitempublishedtext,
@@ -58,6 +58,7 @@ async function getNewbooksList(req, res) {
 async function getNewbooksCarousel(req, res) {
     try {
         let result = await Model.readNewbooks(req)
+        let primoview = req.query.primoview || '46KTH_VU1_L'
         let lang = req.query.lang || 'sv'
         let books = [];
         let image;
@@ -72,7 +73,7 @@ async function getNewbooksCarousel(req, res) {
                 image = ''
             }
             books.push({
-                link: `https://kth-ch.primo.exlibrisgroup.com/discovery/fulldisplay?vid=46KTH_INST:46KTH_VU1_L&docid=alma${result[i].mmsid}&lang=${lang}`,
+                link: `https://kth-ch.primo.exlibrisgroup.com/discovery/fulldisplay?vid=46KTH_INST:${primoview}&docid=alma${result[i].mmsid}&lang=${lang}`,
                 image: image,
                 title: result[i].title.replace('/', '').trim().substring(0,150),
                 description: booktype,
