@@ -28,6 +28,7 @@ async function readNewbooks(req, res) {
 async function getNewbooksList(req, res) {
     try {
         let result = await Model.readNewbooks(req)
+        let lang = req.query.lang || 'sv'
         let almatoolsconfig = {
             showwithnocover : req.query.showwithnocover || 'true',
             primoview :  req.query.primoview || '46KTH_VU1_L', 
