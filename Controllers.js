@@ -365,7 +365,8 @@ async function ActivatePatron(req, res) {
             //hämta user objekt
             almapiurl = process.env.ALMAPIENDPOINT + 'users/' + decodedtoken.userName + '?apikey=' + process.env.ALMAAPIKEY
             const almauser = await axios.get(almapiurl)
-            if(almauser.data.user_group == 10 || almauser.data.user_group == 20 || almauser.data.user_group == 40 ) {
+            if(almauser.data.user_group == 10 || almauser.data.user_group == 20 || almauser.data.user_group == 40 ||
+                almauser.data.user_group == "10" || almauser.data.user_group == "20" || almauser.data.user_group == "40" ) {
                 //Lägg till user note i hämtat userobjekt
                 almauser.data.user_note.push({
                     "note_type": {
