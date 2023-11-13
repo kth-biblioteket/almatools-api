@@ -365,55 +365,60 @@ async function ActivatePatron(req, res) {
             //hämta user objekt
             almapiurl = process.env.ALMAPIENDPOINT + 'users/' + decodedtoken.userName + '?apikey=' + process.env.ALMAAPIKEY
             const almauser = await axios.get(almapiurl)
-            
-            //Lägg till user note i hämtat userobjekt
-            almauser.data.user_note.push({
-                "note_type": {
-                    "value": "POPUP",
-                    "desc": "General"
-                },
-                "note_text": "Activated from Primo",
-                "segment_type": "Internal"
-            })
-            //Uppdatera patron rollen i hämtat userobjekt till att vara aktiv
-            let patronrole = false
-            for (let index = 0; index < almauser.data.user_role.length; index++) {
-                const element = almauser.data.user_role[index].role_type.desc;
-                if(element.indexOf("Patron") !== -1) {
-                    almauser.data.user_role[index].status.desc="Active"
-                    almauser.data.user_role[index].status.value="ACTIVE"
-                    result = "OK"
-                    patronrole = true
-                    break;
+            if(almauser.data.user_group == 10 || almauser.data.user_group == 20 || almauser.data.user_group == 40 ) {
+                //Lägg till user note i hämtat userobjekt
+                almauser.data.user_note.push({
+                    "note_type": {
+                        "value": "POPUP",
+                        "desc": "General"
+                    },
+                    "note_text": "Activated from Primo",
+                    "segment_type": "Internal"
+                })
+                //Uppdatera patron rollen i hämtat userobjekt till att vara aktiv
+                let patronrole = false
+                for (let index = 0; index < almauser.data.user_role.length; index++) {
+                    const element = almauser.data.user_role[index].role_type.desc;
+                    if(element.indexOf("Patron") !== -1) {
+                        almauser.data.user_role[index].status.desc="Active"
+                        almauser.data.user_role[index].status.value="ACTIVE"
+                        result = "OK"
+                        patronrole = true
+                        break;
+                    }
                 }
-            }
-            if(!patronrole) {
-                res.status(400)
-                res.json("User does not have a patron role!");
-                return;
-            }
-            //Uppdatera pincode
-            if(req.body.pin_number) {
-                almauser.data.pin_number = req.body.pin_number
+                if(!patronrole) {
+                    res.status(400)
+                    res.json("User does not have a patron role!");
+                    return;
+                }
+                //Uppdatera pincode
+                if(req.body.pin_number) {
+                    almauser.data.pin_number = req.body.pin_number
+                } else {
+                    res.status(400)
+                    res.json("Error, No pincode provided")
+                    return;
+                }
+
+                //Uppdatera preferred language
+                if(req.body.language_value && req.body.language_desc) {
+                    almauser.data.preferred_language.value = req.body.language_value
+                    almauser.data.preferred_language.desc = req.body.language_desc
+                } else {
+                    res.status(400)
+                    res.json("Error, No preferred language provided")
+                    return;
+                }
+                
+                const almaresult = await axios.put(almapiurl, almauser.data)
+
+                res.json("success");
             } else {
                 res.status(400)
-                res.json("Error, No pincode provided")
+                res.json("Error, Not a KTH user.")
                 return;
             }
-
-            //Uppdatera preferred language
-            if(req.body.language_value && req.body.language_desc) {
-                almauser.data.preferred_language.value = req.body.language_value
-                almauser.data.preferred_language.desc = req.body.language_desc
-            } else {
-                res.status(400)
-                res.json("Error, No preferred language provided")
-                return;
-            }
-            
-            const almaresult = await axios.put(almapiurl, almauser.data)
-
-            res.json("success");
         } catch(err) {
             res.status(400)
             res.json(err.message)
