@@ -17,8 +17,6 @@ services:
       - "traefik.http.routers.almatools-api.entrypoints=websecure"
       - "traefik.http.routers.almatools-api.tls=true"
       - "traefik.http.routers.almatools-api.tls.certresolver=myresolver"
-    volumes:
-      - "/local/docker/almatools/config.js:/app/public/js/config.js"
     networks:
       - "apps-net"
 

@@ -2,8 +2,11 @@
 
 require('dotenv').config({ path: 'almatools-api.env' })
 
+const bunyan = require('bunyan');
+
 const jwt = require("jsonwebtoken");
-const VerifyToken = require('./VerifyToken');
+const jwkToPem = require('jwk-to-pem');
+const { verifyexlibristoken, verifyToken} = require('./VerifyToken');
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require('cors')
@@ -11,6 +14,7 @@ const fs = require("fs");
 const path = require('path');
 const Controller = require('./Controllers');
 const cookieParser = require("cookie-parser");
+const axios = require('axios');
 const app = express();
 
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -29,15 +33,22 @@ app.use(express.static(path.join(__dirname, "public")));
 
 const apiRoutes = express.Router();
 
+const logger = bunyan.createLogger({
+    name: "almatools-api",
+    streams: [{
+        type: 'rotating-file',
+        path: 'almatools-api.log',
+        period: '1d',
+        count: 3,
+        level: process.env.LOG_LEVEL || 'info',
+    }]
+});
+
 apiRoutes.get("/", async function (req, res, next) {
     res.json('Welcome to KTH Biblioteket almatools api')
 });
 
 apiRoutes.get("/newbooks", Controller.readNewbooks)
-
-apiRoutes.get("/newbookspage", Controller.getNewbooksList)
-
-apiRoutes.get("/newbookscarouselpage", Controller.getNewbooksCarousel)
 
 /**
  * Libris Lånestatus. 
@@ -50,7 +61,7 @@ apiRoutes.get("/librisls", Controller.getlibrisLS)
  * Holdshelf nummer som skickas till låntagare och skrivs ut på plocklappar
  * 
  */
-apiRoutes.get("/holdshelfno/:primaryid/:additional_id", VerifyToken, Controller.getHoldShelfNo)
+apiRoutes.get("/holdshelfno/:primaryid/:additional_id", verifyToken, Controller.getHoldShelfNo)
 
 /**
  * Alma Webhooks
@@ -80,7 +91,257 @@ apiRoutes.post("/activatepatron", Controller.ActivatePatron)
  */
 apiRoutes.get("/citationdata/wos", Controller.getCitationDataFromWoS) 
 
-apiRoutes.get("/citationdata/elsevier", Controller.getCitationDataFromScopus) 
+apiRoutes.get("/citationdata/elsevier", Controller.getCitationDataFromScopus)
+
+apiRoutes.post("/createpayment/:jwt", async function (req, res, next) {
+    let decodedtoken = await verifyexlibristoken(req.params.jwt)
+    if (decodedtoken!=0) {
+        try {
+            //Hämta fees från Alma och skapa Nets Json
+            let totalamount = 0;
+            let almaresponse;
+            let itemreference
+            let orderreference
+            let almapiurl
+            if(req.body.fee_id == 'all') {
+                almapiurl = process.env.ALMAPIENDPOINT + 'users/' + decodedtoken.userName + '/fees?user_id_type=all_unique&status=ACTIVE&apikey=' + process.env.ALMAAPIKEY
+                almaresponse = await axios.get(almapiurl)
+                totalamount = almaresponse.data.total_sum
+                if (totalamount > 0) {
+                    itemreference = almaresponse.data.fee[0].type.desc + "_all"
+                    orderreference = almaresponse.data.fee[0].id + '_all'
+                }
+            } else {
+                
+                almapiurl = process.env.ALMAPIENDPOINT + 'users/' + decodedtoken.userName + '/fees/' + req.body.fee_id + '?user_id_type=all_unique&status=ACTIVE&apikey=' + process.env.ALMAAPIKEY
+                console.log(almapiurl)
+                almaresponse = await axios.get(almapiurl)
+                console.log(almaresponse)
+                totalamount = almaresponse.data.balance
+                if (totalamount > 0) {
+                    itemreference = almaresponse.data.type.desc
+                    orderreference = almaresponse.data.id
+                }
+            }
+
+            if (totalamount > 0) {
+                let taxRate = process.env.TAXRATE //ingen moms på biblioteksverksamhet
+                let grossTotalAmount = totalamount * 100
+                let netTotalAmount = grossTotalAmount / (1 + taxRate)
+                let taxAmount = netTotalAmount * taxRate
+                let unitPrice = netTotalAmount
+                let amount = grossTotalAmount
+
+                const options = {
+                    "headers": {
+                        "content-type": "application/*+json",
+                        "Authorization": process.env.NETSSECRETKEY
+                    }
+                };
+        
+                const data = {
+                    "order": {
+                        "items": [{
+                            "reference": itemreference,
+                            "name": "Alma fee",
+                            "quantity": 1,
+                            "unit": "pcs",
+                            "unitPrice": unitPrice,
+                            "taxRate": taxRate * 10000,
+                            "taxAmount": taxAmount,
+                            "grossTotalAmount": grossTotalAmount,
+                            "netTotalAmount": netTotalAmount
+                        }
+                        ],
+                        "amount": amount,
+                        "currency": "SEK",
+                        "reference": orderreference
+                    },
+                    "checkout": {
+                        "url": process.env.CHECKOUTURL,
+                        "termsUrl": process.env.TOCURL,
+                        "shipping": {
+                            "countries": [
+                                {
+                                    "countryCode": "SWE"
+                                }
+                            ],
+                            "merchantHandlesShippingCost": false
+                        },
+                        "consumerType": {
+                            "supportedTypes": [ "B2C" ],
+                            "default": "B2C"
+                        }       
+                    },
+                    "notifications": {
+                        "webhooks": [
+                            {
+                                "eventName": "payment.checkout.completed",
+                                "url": process.env.WEBHOOKURL,
+                                "authorization": process.env.WEBHOOKKEY
+                            }
+                        ]
+                    }
+                }
+                
+                const netsresponse = await axios.post(process.env.NETSAPIURL, data, options)
+            
+                //Spara payment_id + primary_id till DB
+                Controller.createPayment(netsresponse.data.paymentId, decodedtoken.userName, req.body.fee_id)
+                
+                res.json(netsresponse.data.paymentId)
+            } else {
+                res.status(400)
+                res.json("Skuld saknas")
+            }
+
+        } catch(err) {
+            res.status(400)
+            res.json(err.message)
+        }
+    } else {
+        res.status(400)
+        res.json("None or not valid token")
+    }
+});
+
+// Anropas av NETS 
+apiRoutes.post("/webhook-checkout", async function (req, res, next) {
+
+    try {
+        logger.info(JSON.stringify(req.body))
+        //Hämta payment
+        const payment = await Controller.readPayment(req.body.data.paymentId)
+        let almaresponse
+        let almapayresponse
+        let illpayment = false
+
+        let illitems = []
+
+        if(payment[0].fee_id == 'all') {
+            //Hämta fees från Alma
+            almapiurl = process.env.ALMAPIENDPOINT + 'users/' + decodedtoken.userName + '/fees?user_id_type=all_unique&status=ACTIVE&apikey=' + process.env.ALMAAPIKEY
+            logger.debug("webhook-checkout -- hämta alla")
+            logger.debug(JSON.stringify(almapiurl))
+            almaresponse = await axios.get(almapiurl)
+            totalamount = almaresponse.data.total_sum
+            logger.debug("webhook-checkout -- betala alla")
+            logger.debug(JSON.stringify(almaresponse.data))
+            almaresponse.data.fee.forEach(fee => {
+                if (fee.type.value == "DOCUMENTDELIVERYSERVICE" || fee.type.value == "LOSTITEMREPLACEMENTFEE") {
+                    illpayment = true;
+                    illitems.push(fee)
+                }
+                if (fee.type.value == "DOCUMENTDELIVERYSERVICE") {
+                    fee.illmessage = `Användaren ${decodedtoken.displayName}(${decodedtoken.userName}) har betalat avgiften för artikel`;
+                }
+                if (fee.type.value == "LOSTITEMREPLACEMENTFEE") {
+                    fee.illmessage = `Användaren ${decodedtoken.displayName}(${decodedtoken.userName}) har betalat avgiften för lost item`;
+                }
+            });
+            //Betala alla fees i Alma
+            almapaypiurl = process.env.ALMAPIENDPOINT + 'users/' + payment[0].primary_id + '/fees/all?user_id_type=all_unique&op=pay&amount=' + totalamount + '&method=ONLINE&comment=Nets%20Easy&external_transaction_id=' + req.query.paymentId + '&apikey=' + process.env.ALMAAPIKEY
+            logger.debug("webhook-checkout -- before pay all fees almapi")
+            logger.debug(JSON.stringify(almapaypiurl))
+            almapayresponse = await axios.post(almapaypiurl)
+        } else {
+            //Hämta fee från Alma
+            almapiurl = process.env.ALMAPIENDPOINT + 'users/' + decodedtoken.userName + '/fees/' + payment[0].fee_id + '?user_id_type=all_unique&status=ACTIVE&apikey=' + process.env.ALMAAPIKEY
+            almaresponse = await axios.get(almapiurl)
+            totalamount = almaresponse.data.balance
+            //Betala fee i Alma
+            almapaypiurl = process.env.ALMAPIENDPOINT + 'users/' + payment[0].primary_id + '/fees/' + payment[0].fee_id + '?user_id_type=all_unique&op=pay&amount=' + totalamount + '&method=ONLINE&comment=Nets%20Easy&external_transaction_id=' + req.query.paymentId + '&apikey=' + process.env.ALMAAPIKEY
+            almapayresponse = await axios.post(almapaypiurl)
+            if (almapayresponse.data.type.value == "DOCUMENTDELIVERYSERVICE" || almapayresponse.data.type.value == "LOSTITEMREPLACEMENTFEE") {
+                illpayment = true;
+                illitems.push(almapayresponse.data)
+            }
+            if (almapayresponse.data.type.value == "DOCUMENTDELIVERYSERVICE") {
+                almapayresponse.data.illmessage = `Användaren ${decodedtoken.displayName}(${decodedtoken.userName}) har betalat avgiften för artikel`;
+            }
+            if (almapayresponse.data.type.value == "LOSTITEMREPLACEMENTFEE") {
+                almapayresponse.data.illmessage = `Användaren ${decodedtoken.displayName}(${decodedtoken.userName}) har betalat avgiften för lost item`;
+            }
+        }
+
+        if(almapayresponse.status == 200) { 
+            //Skicka ett mail till edge(ill) om typen är document delivery
+            if (illpayment) {
+                    const handlebarOptions = {
+                        viewEngine: {
+                            partialsDir: path.resolve('./templates/'),
+                            defaultLayout: false,
+                        },
+                        viewPath: path.resolve('./templates/'),
+                    };
+
+                    const transporter = nodemailer.createTransport({
+                        port: 25,
+                        host: process.env.SMTP_HOST,
+                        tls: {
+                            rejectUnauthorized: false
+                        }
+                    });
+
+                    logger.debug("webhook-checkout -- handlebarOptions")
+                    logger.debug(JSON.stringify(handlebarOptions))
+                    transporter.use('compile', hbs(handlebarOptions))
+
+                    let mailOptions = {}
+                    mailOptions = {
+                        from: {
+                            name: process.env.MAILFROM_NAME,
+                            address: process.env.MAILFROM_ADDRESS
+                        },
+                        to: process.env.MAIL_TO,
+                        subject: process.env.MAILFROM_SUBJECT,
+                        template: 'edge_email_sv',
+                        context:{
+                            name: decodedtoken.displayName + "(" + decodedtoken.userName + ")",
+                            illitems: illitems
+                        },
+                        generateTextFromHTML: true,
+                    }
+                    logger.debug("webhook-checkout -- mailOptions")
+                    logger.debug(JSON.stringify(mailOptions))
+                    try {
+                        let mailinfo = await transporter.sendMail(mailOptions);
+                        logger.info("webhook-checkout -- Sendmail")
+                        logger.info(JSON.stringify(mailinfo))
+                    } catch (err) {
+                        logger.error("webhook-checkout -- Sendmail")
+                        logger.error(JSON.stringify(err))
+                    }
+                    
+            }
+            
+            //Uppdatera databasen att betalning är korrekt utförd(fältet finished = 1)
+            finished = 1
+            const result = await eventController.updatePayment(req.body.data.paymentId, finished)
+            logger.debug(JSON.stringify(result))
+            res.send()
+        }
+    } catch(err) {
+        logger.error("webhook-checkout -- catch")
+        logger.error(err)
+        res.status(400).send()
+    }
+
+})
+
+apiRoutes.post("/checkpayment/:paymentId", async function (req, res, next) {
+    try {
+        //Hämta payment och skicka tillbaks status om betalningen är finished (= 1)
+        const payment =await eventController.readPayment(req.params.paymentId)
+        paymentdata = {
+            "status": "success",
+            "finished": payment[0].finished
+        }
+        res.json(paymentdata)  
+    } catch(err) {
+        res.end('Error')
+    }    
+})
 
 app.use(process.env.API_ROUTES_PATH, apiRoutes);
 

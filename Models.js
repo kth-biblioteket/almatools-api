@@ -114,9 +114,77 @@ const insertHoldShelfNo = (crypted_primaryid, number, additional_id) => {
     })
 }
 
+//Hämta en betalning
+const readPayment = (payment_id) => {
+    return new Promise(function (resolve, reject) {
+        const sql = `SELECT * FROM payments 
+                    WHERE payment_id = ?`;
+        database.db.query(database.mysql.format(sql,[payment_id]),(err, result) => {
+            if(err) {
+                console.error(err);
+                reject(err.message)
+            }
+            resolve(result);
+        });
+    })
+};
+
+//Lägg till betalning
+const createPayment = (payment_id, primary_id, fee_id) => {
+    return new Promise(function (resolve, reject) {
+        const sql = `INSERT INTO payments(payment_id, primary_id, fee_id)
+                VALUES(?, ?, ?)`;
+        database.db.query(database.mysql.format(sql,[payment_id, primary_id, fee_id]),(err, result) => {
+            if(err) {
+                console.error(err);
+                reject(err.message)
+            }
+            const successMessage = "The payment was successfully created."
+            resolve(successMessage);
+        });
+    })
+};
+
+//Uppdatera betalning
+const updatePayment = (payment_id, finished) => {
+    return new Promise(function (resolve, reject) {
+        const sql = `UPDATE payments
+                    SET finished = ?
+                    WHERE payment_id = ?`;
+        database.db.query(database.mysql.format(sql,[finished, payment_id]),(err, result) => {
+            if(err) {
+                console.error(err);
+                reject(err.message)
+            }
+            const successMessage = "The payment was successfully updated."
+            resolve(successMessage);
+        });
+    })
+};
+
+//Ta bort en betalning
+const deletePayment = (payment_id) => {
+    return new Promise(function (resolve, reject) {
+        const sql = `DELETE FROM payments
+                    WHERE payment_id = ?`;
+        database.db.query(database.mysql.format(sql,[payment_id]),(err, result) => {
+            if(err) {
+                console.error(err);
+                reject(err.message)
+            }
+            const successMessage = "The payment was successfully deleted."
+            resolve(successMessage);
+        });
+    })
+};
+
 module.exports = {
-  readNewbooks,
-  readHoldShelfMaxNo,
-  readHoldShelfUser,
-  insertHoldShelfNo
+    readNewbooks,
+    readHoldShelfMaxNo,
+    readHoldShelfUser,
+    insertHoldShelfNo,
+    readPayment,
+    createPayment,
+    updatePayment,
+    deletePayment
 };

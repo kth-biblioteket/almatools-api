@@ -45,4 +45,20 @@ function verifyToken(req, res, next) {
     }
 }
 
-module.exports = verifyToken;
+async function verifyexlibristoken(tokenValue) {
+    try {
+        const exlibrisjwks = await axios.get(process.env.EXLIBRISPUBLICKEY_URL)
+        var pem = jwkToPem(exlibrisjwks.data.keys[1]);
+        var token = jwt.verify( tokenValue, pem )
+        return token
+    } catch(err) {
+        console.log(err)
+        return 0
+    }
+
+}
+
+module.exports = {
+    verifyToken,
+    verifyexlibristoken
+}

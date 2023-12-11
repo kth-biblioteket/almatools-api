@@ -11,97 +11,13 @@ const crypto = require('crypto')
 const jwt = require("jsonwebtoken");
 const jwkToPem = require('jwk-to-pem');
 
-const translations = require('./translations/translations.json');
+const { verifyexlibristoken, verifyToken} = require('./VerifyToken');
 
 //Hämta nya böcker från tabellen "newbooks"
 async function readNewbooks(req, res) {
     try {
         let result = await Model.readNewbooks(req)
         res.send(result)
-    } catch (err) {
-        res.send("error: " + err)
-    }
-}
-
-// Lista som visar nya böcker på https://www.kth.se/biblioteket/soka-vardera/nya-bocker-pa-kth-biblioteket-1.1175846
-// Kodsnutt läggs in som html-block i polopoly
-async function getNewbooksList(req, res) {
-    try {
-        let result = await Model.readNewbooks(req)
-        let lang = req.query.lang || 'sv'
-        let almatoolsconfig = {
-            showwithnocover : req.query.showwithnocover || 'true',
-            primoview :  req.query.primoview || '46KTH_VU1_L',
-            target: req.query.target || '_blank',
-            nroftitlestoshow : parseInt(req.query.nroftitlestoshow) || 20,
-            min_publication_date: req.query.minpublicationdate || '2020-05-01',
-            booktype: req.query.booktype || 'all',
-            lang: req.query.lang || 'sv',
-            bookitemtype_P_text : translations[lang].bookitemtype_P_text,
-            bookitemtype_E_text : translations[lang].bookitemtype_E_text,
-            bookitempublishedtext : translations[lang].bookitempublishedtext,
-            bookimageurl: process.env.BOOKIMAGEURL,
-            book200imageurl: process.env.BOOK200IMAGEURL,
-            nojquery: req.query.nojquery || false,
-            nostyle: req.query.nostyle || false
-        }
-        res.render('pages/newbookslist', 
-        {
-            almatoolsconfig: almatoolsconfig, 
-            rows: result 
-        })
-    } catch (err) {
-        res.send("error: " + err)
-    }
-}
-
-// Karusell som visar nya böcker på https://www.kth.se/biblioteket
-// Kodsnutt läggs in som html-block i polopoly
-async function getNewbooksCarousel(req, res) {
-    try {
-        let result = await Model.readNewbooks(req)
-        let primoview = req.query.primoview || '46KTH_VU1_L'
-        let target = req.query.target || '_blank'
-        let lang = req.query.lang || 'sv'
-        let books = [];
-        let image;
-        let booktype;
-        let nroftitlestoshow;
-        (nroftitlestoshow > result.length ? nroftitlestoshow = result.length : nroftitlestoshow = parseInt(req.query.nroftitlestoshow))
-        for (i=0;i<nroftitlestoshow;i++) {
-            (result[i].booktype == "P") ? booktype = translations[lang].bookitemtype_P_text : booktype = translations[lang].bookitemtype_E_text;
-            if (result[i].coverurl && result[i].coverurl != process.env.BOOKIMAGEURL) {
-                image = result[i].coverurl
-            } else {
-                image = ''
-            }
-            books.push({
-                link: `https://kth-ch.primo.exlibrisgroup.com/discovery/fulldisplay?vid=46KTH_INST:${primoview}&docid=alma${result[i].mmsid}&lang=${lang}`,
-                image: image,
-                title: result[i].title.replace('/', '').trim().substring(0,150),
-                description: booktype,
-                target: target,
-                authors: [ result[i].subject ]
-            });
-        }
-        let almatoolsconfig = {
-            showwithnocover : req.query.showwithnocover || 'true',
-            nocoverfontsize : req.query.nocoverfontsize || 20,
-            carouseltype : req.query.carouseltype || 'carousel',
-            stepInterval: req.query.stepInterval||"5000",
-            stepDuration: req.query.stepDuration||"2000",
-            maxshelfheight: req.query.maxshelfheight||"150",
-            bookimageurl: process.env.BOOKIMAGEURL,
-            book200imageurl: process.env.BOOK200IMAGEURL,
-            nojquery: req.query.nojquery || false,
-        }
-        
-        res.render('pages/newbookscarousel', 
-        {
-            almatoolsconfig: almatoolsconfig, 
-            rows: result,
-            books: books
-        })
     } catch (err) {
         res.send("error: " + err)
     }
@@ -350,7 +266,7 @@ async function getPrimoAutoComplete(req, res) {
     }  
 }
 
-//Aktivera almakonto
+//Aktivera almakonto via Primo
 async function ActivatePatron(req, res) {
 
     let decodedtoken
@@ -550,8 +466,41 @@ async function getCitationDataFromScopus(req, res) {
         res.json('Please provide a doi parameter(?doi=xxxxx)');
     }
 }
+
+//Netsbetalningar
+async function readPayment(payment_id) {
+    try {
+        result = await Model.readPayment(payment_id)
+        return result;
+    } catch (err) {
+        console.log(err.message)
+        return "error: " + err.message
+    }
+}
+
+async function createPayment(payment_id, primary_id, fee_id) {
+    try {
+        let result = await Model.createPayment(payment_id, primary_id, fee_id)
+        return result
+    } catch (err) {
+        console.log(err.message)
+        return "error: " + err.message
+    }
+}
+
+async function updatePayment(payment_id, finished) {
+    try {
+        let result = await Model.updatePayment(payment_id, finished)
+        return result
+    } catch (err) {
+        console.log(err.message)
+        return "error: " + err.message
+    }
+}
+
 //Funktioner
 
+//Anropas av webhook när almajobbet för TDIG är klart.
 async function sendFileToFtp(config) {
     try {
         console.log(new Date().toLocaleString());
@@ -685,28 +634,16 @@ function getLastDayOfWeek(date) {
     return formatDate(lastDayOfWeek);
 }
 
-async function verifyexlibristoken(tokenValue) {
-    try {
-        const exlibrisjwks = await axios.get(process.env.EXLIBRISPUBLICKEY_URL)
-        var pem = jwkToPem(exlibrisjwks.data.keys[1]);
-        var token = jwt.verify( tokenValue, pem )
-        return token
-    } catch(err) {
-        console.log(err)
-        return 0
-    }
-
-}
-
 module.exports = {
     readNewbooks,
-    getNewbooksList,
-    getNewbooksCarousel,
     getlibrisLS,
     getHoldShelfNo,
     webhook,
     getPrimoAutoComplete,
     ActivatePatron,
     getCitationDataFromWoS,
-    getCitationDataFromScopus
+    getCitationDataFromScopus,
+    readPayment,
+    createPayment,
+    updatePayment
 };
