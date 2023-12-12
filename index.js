@@ -219,7 +219,8 @@ apiRoutes.post("/webhook-checkout", async function (req, res, next) {
         let illitems = []
 
         let almapiurl
-
+        let almapaypiurl
+        let totalamount
         if(payment[0].fee_id == 'all') {
             //Hämta fees från Alma
             almapiurl = process.env.ALMAPIENDPOINT + 'users/' + payment[0].primary_id + '/fees?user_id_type=all_unique&status=ACTIVE&apikey=' + process.env.ALMAAPIKEY
