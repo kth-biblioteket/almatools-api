@@ -114,9 +114,7 @@ apiRoutes.post("/createpayment/:jwt", async function (req, res, next) {
             } else {
                 
                 almapiurl = process.env.ALMAPIENDPOINT + 'users/' + decodedtoken.userName + '/fees/' + req.body.fee_id + '?user_id_type=all_unique&status=ACTIVE&apikey=' + process.env.ALMAAPIKEY
-                console.log(almapiurl)
                 almaresponse = await axios.get(almapiurl)
-                console.log(almaresponse)
                 totalamount = almaresponse.data.balance
                 if (totalamount > 0) {
                     itemreference = almaresponse.data.type.desc
@@ -214,13 +212,15 @@ apiRoutes.post("/webhook-checkout", async function (req, res, next) {
         const payment = await Controller.readPayment(req.body.data.paymentId)
         let almaresponse
         let almapayresponse
+        //Hämta almauser
+        const almauser = await axios.get(process.env.ALMAPIENDPOINT + 'users/' + payment[0].primary_id + '?apikey=' + process.env.ALMAAPIKEY)
         let illpayment = false
 
         let illitems = []
 
         if(payment[0].fee_id == 'all') {
             //Hämta fees från Alma
-            almapiurl = process.env.ALMAPIENDPOINT + 'users/' + decodedtoken.userName + '/fees?user_id_type=all_unique&status=ACTIVE&apikey=' + process.env.ALMAAPIKEY
+            almapiurl = process.env.ALMAPIENDPOINT + 'users/' + payment[0].primary_id + '/fees?user_id_type=all_unique&status=ACTIVE&apikey=' + process.env.ALMAAPIKEY
             logger.debug("webhook-checkout -- hämta alla")
             logger.debug(JSON.stringify(almapiurl))
             almaresponse = await axios.get(almapiurl)
@@ -233,10 +233,10 @@ apiRoutes.post("/webhook-checkout", async function (req, res, next) {
                     illitems.push(fee)
                 }
                 if (fee.type.value == "DOCUMENTDELIVERYSERVICE") {
-                    fee.illmessage = `Användaren ${decodedtoken.displayName}(${decodedtoken.userName}) har betalat avgiften för artikel`;
+                    fee.illmessage = `Användaren ${almauser.data.full_name}(${almauser.data.primary_id}) har betalat avgiften för artikel`;
                 }
                 if (fee.type.value == "LOSTITEMREPLACEMENTFEE") {
-                    fee.illmessage = `Användaren ${decodedtoken.displayName}(${decodedtoken.userName}) har betalat avgiften för lost item`;
+                    fee.illmessage = `Användaren ${almauser.data.full_name}(${almauser.data.primary_id}) har betalat avgiften för lost item`;
                 }
             });
             //Betala alla fees i Alma
@@ -246,7 +246,7 @@ apiRoutes.post("/webhook-checkout", async function (req, res, next) {
             almapayresponse = await axios.post(almapaypiurl)
         } else {
             //Hämta fee från Alma
-            almapiurl = process.env.ALMAPIENDPOINT + 'users/' + decodedtoken.userName + '/fees/' + payment[0].fee_id + '?user_id_type=all_unique&status=ACTIVE&apikey=' + process.env.ALMAAPIKEY
+            almapiurl = process.env.ALMAPIENDPOINT + 'users/' + payment[0].primary_id + '/fees/' + payment[0].fee_id + '?user_id_type=all_unique&status=ACTIVE&apikey=' + process.env.ALMAAPIKEY
             almaresponse = await axios.get(almapiurl)
             totalamount = almaresponse.data.balance
             //Betala fee i Alma
@@ -257,10 +257,10 @@ apiRoutes.post("/webhook-checkout", async function (req, res, next) {
                 illitems.push(almapayresponse.data)
             }
             if (almapayresponse.data.type.value == "DOCUMENTDELIVERYSERVICE") {
-                almapayresponse.data.illmessage = `Användaren ${decodedtoken.displayName}(${decodedtoken.userName}) har betalat avgiften för artikel`;
+                almapayresponse.data.illmessage = `Användaren ${almauser.data.full_name}(${almauser.data.primary_id}) har betalat avgiften för artikel`;
             }
             if (almapayresponse.data.type.value == "LOSTITEMREPLACEMENTFEE") {
-                almapayresponse.data.illmessage = `Användaren ${decodedtoken.displayName}(${decodedtoken.userName}) har betalat avgiften för lost item`;
+                almapayresponse.data.illmessage = `Användaren ${almauser.data.full_name}(${almauser.data.primary_id}) har betalat avgiften för lost item`;
             }
         }
 
@@ -297,7 +297,7 @@ apiRoutes.post("/webhook-checkout", async function (req, res, next) {
                         subject: process.env.MAILFROM_SUBJECT,
                         template: 'edge_email_sv',
                         context:{
-                            name: decodedtoken.displayName + "(" + decodedtoken.userName + ")",
+                            name: `${almauser.data.full_name}(${almauser.data.primary_id})`,
                             illitems: illitems
                         },
                         generateTextFromHTML: true,
