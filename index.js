@@ -347,7 +347,7 @@ apiRoutes.post("/checkpayment/:paymentId", async function (req, res, next) {
     } catch(err) {
         logger.error("checkpayment")
         logger.error(err)
-        res.end('Error')
+        res.json('Error')
     }    
 })
 
