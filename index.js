@@ -319,8 +319,8 @@ apiRoutes.post("/webhook-checkout", async function (req, res, next) {
             }
             
             //Uppdatera databasen att betalning är korrekt utförd(fältet finished = 1)
-            finished = 1
-            const result = await eventController.updatePayment(req.body.data.paymentId, finished)
+            let finished = 1
+            const result = await Controller.updatePayment(req.body.data.paymentId, finished)
             logger.debug(JSON.stringify(result))
             res.send()
         }
@@ -335,7 +335,7 @@ apiRoutes.post("/webhook-checkout", async function (req, res, next) {
 apiRoutes.post("/checkpayment/:paymentId", async function (req, res, next) {
     try {
         //Hämta payment och skicka tillbaks status om betalningen är finished (= 1)
-        const payment =await eventController.readPayment(req.params.paymentId)
+        const payment =await Controller.readPayment(req.params.paymentId)
         paymentdata = {
             "status": "success",
             "finished": payment[0].finished
