@@ -339,7 +339,7 @@ apiRoutes.post("/checkpayment/:paymentId", async function (req, res, next) {
     try {
         //Hämta payment och skicka tillbaks status om betalningen är finished (= 1)
         const payment =await Controller.readPayment(req.params.paymentId)
-        paymentdata = {
+        let paymentdata = {
             "status": "success",
             "finished": payment[0].finished
         }
