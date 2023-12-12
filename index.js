@@ -251,10 +251,12 @@ apiRoutes.post("/webhook-checkout", async function (req, res, next) {
         } else {
             //Hämta fee från Alma
             almapiurl = process.env.ALMAPIENDPOINT + 'users/' + payment[0].primary_id + '/fees/' + payment[0].fee_id + '?user_id_type=all_unique&status=ACTIVE&apikey=' + process.env.ALMAAPIKEY
+            logger.debug(almapiurl)
             almaresponse = await axios.get(almapiurl)
             totalamount = almaresponse.data.balance
             //Betala fee i Alma
             almapaypiurl = process.env.ALMAPIENDPOINT + 'users/' + payment[0].primary_id + '/fees/' + payment[0].fee_id + '?user_id_type=all_unique&op=pay&amount=' + totalamount + '&method=ONLINE&comment=Nets%20Easy&external_transaction_id=' + req.query.paymentId + '&apikey=' + process.env.ALMAAPIKEY
+            logger.debug(almapayresponse)
             almapayresponse = await axios.post(almapaypiurl)
             if (almapayresponse.data.type.value == "DOCUMENTDELIVERYSERVICE" || almapayresponse.data.type.value == "LOSTITEMREPLACEMENTFEE") {
                 illpayment = true;
