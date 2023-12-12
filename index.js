@@ -207,12 +207,13 @@ apiRoutes.post("/createpayment/:jwt", async function (req, res, next) {
 apiRoutes.post("/webhook-checkout", async function (req, res, next) {
 
     try {
-        logger.info(JSON.stringify(req.body))
+        logger.debug(JSON.stringify(req.body))
         //Hämta payment
         const payment = await Controller.readPayment(req.body.data.paymentId)
         let almaresponse
         let almapayresponse
         //Hämta almauser
+        logger.debug(JSON.stringify(process.env.ALMAPIENDPOINT + 'users/' + payment[0].primary_id + '?apikey=' + process.env.ALMAAPIKEY))
         const almauser = await axios.get(process.env.ALMAPIENDPOINT + 'users/' + payment[0].primary_id + '?apikey=' + process.env.ALMAAPIKEY)
         let illpayment = false
 
