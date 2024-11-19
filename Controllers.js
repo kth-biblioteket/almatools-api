@@ -33,15 +33,15 @@ async function getlibrisLS(req, res) {
 					<Item_Information xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://appl.libris.kb.se/LIBRISItem.xsd">`
 	
         // I Alma ligger ofta libris ONR i ISBN-fältet. Men det ligger alltid i 035. i 035 ligger också bib_id. Så sök i other_system_number
-        if ((req.query.ISBN || req.query.ONR || req.query.ISSN || req.query.BIB_ID) && req.query.library) {
+        if ((req.query.ISBN || req.query.ONR || req.query.ISSN || req.query.Bib_ID) && req.query.library) {
             if (req.query.ISBN && req.query.ISBN.trim() !== '') {
                 sru = `https://eu01.alma.exlibrisgroup.com/view/sru/46KTH_INST?version=1.2&operation=searchRetrieve&recordSchema=marcxml&query=alma.isbn="${req.query.ISBN}"&maximumRecords=10`
             } else if (req.query.ISSN && req.query.ISSN.trim() !== '') {
                 sru = `https://eu01.alma.exlibrisgroup.com/view/sru/46KTH_INST?version=1.2&operation=searchRetrieve&recordSchema=marcxml&query=alma.issn="${req.query.ISSN}"&maximumRecords=10`
             } else if (req.query.ONR && req.query.ONR.trim() !== '') {
                 sru = `https://eu01.alma.exlibrisgroup.com/view/sru/46KTH_INST?version=1.2&operation=searchRetrieve&recordSchema=marcxml&query=alma.other_system_number="${req.query.ONR}"&maximumRecords=10`
-            } else if (req.query.BIB_ID && req.query.BIB_ID.trim() !== '') {
-                sru = `https://eu01.alma.exlibrisgroup.com/view/sru/46KTH_INST?version=1.2&operation=searchRetrieve&recordSchema=marcxml&query=alma.other_system_number="${req.query.BIB_ID}"&maximumRecords=10`
+            } else if (req.query.Bib_ID && req.query.Bib_ID.trim() !== '') {
+                sru = `https://eu01.alma.exlibrisgroup.com/view/sru/46KTH_INST?version=1.2&operation=searchRetrieve&recordSchema=marcxml&query=alma.other_system_number="${req.query.Bib_ID}"&maximumRecords=10`
             }
             if(sru != '') {
                 const response = await axios.get(sru)
