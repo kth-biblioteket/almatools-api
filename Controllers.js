@@ -76,7 +76,7 @@ async function getlibrisLS(req, res) {
                                     for(j = 0; j < items.item.length; j++) {
                                         itemno++;
                                         let location = items.item[j]['item_data']['location']['desc'];
-                                        let locationcode = items.item[i]['item_data']['location']['value'];
+                                        let locationcode = items.item[j]['item_data']['location']['value'];
                                         /*Hämta location*/
                                         almaresponse = await axios.get(`https://api-eu.hosted.exlibrisgroup.com/almaws/v1/conf/libraries/${holdings.holding[i]['library']['value']}/locations/${locationcode}?apikey=${process.env.ALMAAPIKEY}&lang=${lang}`);
                                         let almalocation = almaresponse.data
