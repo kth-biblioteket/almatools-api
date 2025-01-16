@@ -2,7 +2,7 @@
 
 require('dotenv').config({ path: 'almatools-api.env' })
 
-const bunyan = require('bunyan');
+const logger = require('./logger');
 
 const jwt = require("jsonwebtoken");
 const jwkToPem = require('jwk-to-pem');
@@ -32,17 +32,6 @@ app.use(cors({ origin: whitelist }));
 app.use(express.static(path.join(__dirname, "public")));
 
 const apiRoutes = express.Router();
-
-const logger = bunyan.createLogger({
-    name: "almatools-api",
-    streams: [{
-        type: 'rotating-file',
-        path: 'almatools-api.log',
-        period: '1d',
-        count: 3,
-        level: process.env.LOG_LEVEL || 'info',
-    }]
-});
 
 apiRoutes.get("/", async function (req, res, next) {
     res.json('Welcome to KTH Biblioteket almatools api')

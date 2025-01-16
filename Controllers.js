@@ -11,6 +11,8 @@ const crypto = require('crypto')
 const jwt = require("jsonwebtoken");
 const jwkToPem = require('jwk-to-pem');
 
+const logger = require('./logger');
+
 const { verifyexlibristoken, verifyToken} = require('./VerifyToken');
 
 //Hämta nya böcker från tabellen "newbooks"
@@ -213,6 +215,7 @@ async function webhook(req, res, next) {
         }
 
         let job_instance_filename = '';
+        logger.debug(JSON.stringify(req.body))
         var action = req.body.action.toLowerCase();
         switch (action) {
             case 'JOB_END':
