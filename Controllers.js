@@ -210,6 +210,7 @@ async function callAlmaApi(endpointurl, lang = 'sv') {
 
 async function webhook(req, res, next) {
     try {
+        logger.info("Alma webhook");
         if (!validateSignature(req.body,
             process.env.WEBHOOKSECRET,
             req.get('X-Exl-Signature'))) {
