@@ -13,6 +13,8 @@ const jwkToPem = require('jwk-to-pem');
 
 const logger = require('./logger');
 
+logger.info("Controller started")
+
 const { verifyexlibristoken, verifyToken} = require('./VerifyToken');
 
 //Hämta nya böcker från tabellen "newbooks"
