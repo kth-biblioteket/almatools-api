@@ -209,6 +209,7 @@ async function callAlmaApi(endpointurl, lang = 'sv') {
 }
 
 async function webhook(req, res, next) {
+    console.log("Alma webhook")
     try {
         logger.info("Alma webhook");
         if (!validateSignature(req.body,
