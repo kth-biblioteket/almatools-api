@@ -214,6 +214,7 @@ async function webhook(req, res, next) {
         if (!validateSignature(req.body,
             process.env.WEBHOOKSECRET,
             req.get('X-Exl-Signature'))) {
+            logger.info("Invalid Signature");
             return res.status(401).send({ errorMessage: 'Invalid Signature' });
         }
 
