@@ -14,6 +14,8 @@ const fs = require("fs");
 const path = require('path');
 const Controller = require('./Controllers');
 const cookieParser = require("cookie-parser");
+const nodemailer = require('nodemailer');
+const hbs = require('nodemailer-express-handlebars')
 const axios = require('axios');
 const app = express();
 
@@ -251,7 +253,7 @@ apiRoutes.post("/webhook-checkout", async function (req, res, next) {
                 }
             });
             //Betala alla fees i Alma
-            almapaypiurl = process.env.ALMAPIENDPOINT + 'users/' + payment[0].primary_id + '/fees/all?user_id_type=all_unique&op=pay&amount=' + totalamount + '&method=ONLINE&comment=Nets%20Easy&external_transaction_id=' + req.query.paymentId + '&apikey=' + process.env.ALMAAPIKEY
+            almapaypiurl = process.env.ALMAPIENDPOINT + 'users/' + payment[0].primary_id + '/fees/all?user_id_type=all_unique&op=pay&amount=' + totalamount + '&method=ONLINE&comment=Nets%20Easy&external_transaction_id=' + req.body.data.paymentId + '&apikey=' + process.env.ALMAAPIKEY
             logger.debug("webhook-checkout -- before pay all fees almapi")
             logger.debug(JSON.stringify(almapaypiurl))
             almapayresponse = await axios.post(almapaypiurl)
@@ -262,10 +264,10 @@ apiRoutes.post("/webhook-checkout", async function (req, res, next) {
             almaresponse = await axios.get(almapiurl)
             totalamount = almaresponse.data.balance
             //Betala fee i Alma
-            almapaypiurl = process.env.ALMAPIENDPOINT + 'users/' + payment[0].primary_id + '/fees/' + payment[0].fee_id + '?user_id_type=all_unique&op=pay&amount=' + totalamount + '&method=ONLINE&comment=Nets%20Easy&external_transaction_id=' + req.query.paymentId + '&apikey=' + process.env.ALMAAPIKEY
+            almapaypiurl = process.env.ALMAPIENDPOINT + 'users/' + payment[0].primary_id + '/fees/' + payment[0].fee_id + '?user_id_type=all_unique&op=pay&amount=' + totalamount + '&method=ONLINE&comment=Nets%20Easy&external_transaction_id=' + req.body.data.paymentId + '&apikey=' + process.env.ALMAAPIKEY
             almapayresponse = await axios.post(almapaypiurl)
             logger.debug(almapayresponse)
-            if (almapayresponse.data.type.value == "DOCUMENTDELIVERYSERVICE" || almapayresponse.data.type.value == "LOSTITEMREPLACEMENTFEE") {
+            if (almapayresponse.data.type.value == "DOCUMENTDELIVERYSERVICE") {
                 illpayment = true;
                 illitems.push(almapayresponse.data)
             }
