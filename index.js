@@ -40,6 +40,24 @@ apiRoutes.get("/", async function (req, res, next) {
 apiRoutes.get("/newbooks", Controller.readNewbooks)
 
 /**
+ * Sök bibliografisk post i Alma via Other System Number(fält 035)
+ * 
+ */
+apiRoutes.get("/almabib/:other_system_number", Controller.getAlmaBib)
+
+/**
+ * Sök bibliografisk post i Libris via Librisid
+ * 
+ */
+apiRoutes.get("/librisbib/:librisid", Controller.getLibrisBib)
+
+/**
+ * Hämta uppdaterade poster från Libris
+ * 
+ */
+apiRoutes.get("/librisupdates/:from/:until", Controller.getUpdatedLibrisBib)
+
+/**
  * Libris Lånestatus. 
  * 
  * Länk till detta api läggs in i biblioteksdatabasen hos libris på respektive bibliotek(T, Te etc)
@@ -245,8 +263,8 @@ apiRoutes.post("/webhook-checkout", async function (req, res, next) {
             totalamount = almaresponse.data.balance
             //Betala fee i Alma
             almapaypiurl = process.env.ALMAPIENDPOINT + 'users/' + payment[0].primary_id + '/fees/' + payment[0].fee_id + '?user_id_type=all_unique&op=pay&amount=' + totalamount + '&method=ONLINE&comment=Nets%20Easy&external_transaction_id=' + req.query.paymentId + '&apikey=' + process.env.ALMAAPIKEY
-            logger.debug(almapayresponse)
             almapayresponse = await axios.post(almapaypiurl)
+            logger.debug(almapayresponse)
             if (almapayresponse.data.type.value == "DOCUMENTDELIVERYSERVICE" || almapayresponse.data.type.value == "LOSTITEMREPLACEMENTFEE") {
                 illpayment = true;
                 illitems.push(almapayresponse.data)

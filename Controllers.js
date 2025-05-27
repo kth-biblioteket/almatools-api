@@ -10,6 +10,7 @@ const path = require('path');
 const crypto = require('crypto')
 const jwt = require("jsonwebtoken");
 const jwkToPem = require('jwk-to-pem');
+const https = require('https');
 
 const logger = require('./logger');
 
@@ -22,6 +23,69 @@ async function readNewbooks(req, res) {
     try {
         let result = await Model.readNewbooks(req)
         res.send(result)
+    } catch (err) {
+        res.send("error: " + err)
+    }
+}
+
+//Alma Bibliotgrafisk post via SRU
+async function getAlmaBib(req, res) {
+    try {
+        const url = `${process.env.ALMA_SRU_ENDPOINT}?version=1.2&operation=searchRetrieve&recordSchema=marcxml&query=alma.other_system_number=="${req.params.other_system_number}"`
+        const response = await axios.get(url);
+        console.log(response.data)
+        res.set('Content-Type', 'application/xml');
+        res.send(response.data);
+    } catch (err) {
+        res.send("error: " + err)
+    }
+}
+
+//Libris Bibliografisk post
+async function getLibrisBib(req, res) {
+    try {
+        let url = `${process.env.LIBRISAPIENDPOINT}/${req.params.librisid}`
+        let response = await axios.get(
+            url,
+            {
+                headers: {
+                    'Accept': "application/ld+json",
+                    'content-type': 'application/json;charset=utf-8'
+                }
+            });
+        //res.set('Content-Type', 'application/xml');
+        res.send(response.data);
+    } catch (err) {
+        res.send("error: " + err)
+    }
+}
+
+async function getUpdatedLibrisBib(req, res) {
+    try {
+         const data_binary = await new Promise((resolve, reject) => {
+            fs.readFile('./librisexport.properties', (err, data) => {
+                if (err) {
+                    reject('Could not read the file:', err);
+                } else {
+                    resolve(data);
+                }
+            });
+        });
+
+        const options = {
+            hostname: process.env.LIBRIS_HOSTNAME,
+            path: `/api/marc_export?from=${req.params.from}&until=${req.params.until}&deleted=ignore&virtualDelete=false`,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/octet-stream",
+                "Content-Length": data_binary.length,
+            },
+        };
+
+        const response = await makeHttpRequest(options, data_binary);
+    
+        res.set('Content-Type', 'application/xml');
+        res.send(response);
     } catch (err) {
         res.send("error: " + err)
     }
@@ -644,8 +708,37 @@ function getLastDayOfWeek(date) {
     return formatDate(lastDayOfWeek);
 }
 
+async function makeHttpRequest(options, body = null) {
+    return new Promise((resolve, reject) => {
+        const req = https.request(options, (res) => {
+            let data = '';
+
+            res.on('data', (chunk) => {
+                data += chunk;
+            });
+
+            res.on('end', () => {
+                if (res.statusCode !== 200) {
+                    reject(`Error: Received status code ${res.statusCode}`);
+                } else {
+                    resolve(data);
+                }
+            });
+        });
+
+        req.on('error', (error) => reject(`Error during request: ${error}`));
+
+        if (body) req.write(body);
+        req.end();
+    });
+}
+
+
 module.exports = {
     readNewbooks,
+    getAlmaBib,
+    getLibrisBib,
+    getUpdatedLibrisBib,
     getlibrisLS,
     getHoldShelfNo,
     webhook,
