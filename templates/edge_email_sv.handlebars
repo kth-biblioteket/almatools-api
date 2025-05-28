@@ -19,29 +19,30 @@
                 {{#each fees}}
                     <div class="fee-item">
                         <p>
-                            {{ value }}
+                            Type: {{ type.value }}
                         </p>
 
                         <p>
-                            {{ desc }}
+                            Description: {{ desc }}
                         </p>
 
                         <p>
-                            {{ balance }}
+                            Balance: {{ balance }}
                         </p>
 
                         <p>
-                            {{ title }}
+                            Title: {{ title }}
                         </p>
 
                         <p>
-                            {{ barcode }}
+                            Barcode: {{ barcode.value }}
                         </p>
 
                         <p>
-                            {{ id }}
+                            Id: {{ id }}
                         </p>
                     </div>
+                    <div> --------- </div>
                 {{/each}}
 
 </body>
