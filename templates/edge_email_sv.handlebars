@@ -16,30 +16,31 @@
                     Användare: {{name}}
                 </p>
                 
-               
-                <p>
-                    {{ fees.value }}
-                </p>
+                {{#each fees}}
+                    <p>
+                        {{ fees.value }}
+                    </p>
 
-                <p>
-                    {{ fees.desc }}
-                </p>
+                    <p>
+                        {{ fees.desc }}
+                    </p>
 
-                <p>
-                    {{ fees.balance }}
-                </p>
+                    <p>
+                        {{ fees.balance }}
+                    </p>
 
-                <p>
-                    {{ fees.title }}
-                </p>
+                    <p>
+                        {{ fees.title }}
+                    </p>
 
-                <p>
-                    {{ fees.barcode }}
-                </p>
+                    <p>
+                        {{ fees.barcode }}
+                    </p>
 
-                <p>
-                    {{ fees.id }}
-                </p>
+                    <p>
+                        {{ fees.id }}
+                    </p>
+                {{/each}}
 
 </body>
 
