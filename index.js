@@ -335,7 +335,7 @@ apiRoutes.post("/webhook-checkout", async function (req, res, next) {
                         logger.info(mailinfo)
                     } catch (err) {
                         logger.error("webhook-checkout -- Sendmail Error")
-                        logger.error(JSON.stringify(err))
+                        logger.error(err)
                     }
                     
             }
