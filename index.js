@@ -25,6 +25,7 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 
 const socketIo = require("socket.io");
+const { send } = require('process');
 
 app.set("view engine", "ejs");
 
@@ -228,6 +229,8 @@ apiRoutes.post("/webhook-checkout", async function (req, res, next) {
 
         let illitems = []
 
+        let fees = []
+
         let almapiurl
         let almapaypiurl
         let totalamount
@@ -241,7 +244,8 @@ apiRoutes.post("/webhook-checkout", async function (req, res, next) {
             logger.debug("webhook-checkout -- betala alla")
             logger.debug(JSON.stringify(almaresponse.data))
             almaresponse.data.fee.forEach(fee => {
-                if (fee.type.value == "DOCUMENTDELIVERYSERVICE" || fee.type.value == "LOSTITEMREPLACEMENTFEE") {
+                fees.push(fee)
+                if (fee.type.value == "DOCUMENTDELIVERYSERVICE") {
                     illpayment = true;
                     illitems.push(fee)
                 }
@@ -267,6 +271,7 @@ apiRoutes.post("/webhook-checkout", async function (req, res, next) {
             almapaypiurl = process.env.ALMAPIENDPOINT + 'users/' + payment[0].primary_id + '/fees/' + payment[0].fee_id + '?user_id_type=all_unique&op=pay&amount=' + totalamount + '&method=ONLINE&comment=Nets%20Easy&external_transaction_id=' + req.body.data.paymentId + '&apikey=' + process.env.ALMAAPIKEY
             almapayresponse = await axios.post(almapaypiurl)
             logger.debug(almapayresponse)
+            fees.push(almapayresponse.data)
             if (almapayresponse.data.type.value == "DOCUMENTDELIVERYSERVICE") {
                 illpayment = true;
                 illitems.push(almapayresponse.data)
@@ -280,8 +285,12 @@ apiRoutes.post("/webhook-checkout", async function (req, res, next) {
         }
 
         if(almapayresponse.status == 200) { 
+            let sendmail = false;
             //Skicka ett mail till edge(ill) om typen är document delivery
-            if (illpayment) {
+            if (illpayment || process.env.ALWAYS_SEND_PAYMENT_MAIL === 'true') { 
+                sendmail = true;
+            }
+            if (sendmail) {
                     const handlebarOptions = {
                         viewEngine: {
                             partialsDir: path.resolve('./templates/'),
@@ -313,7 +322,8 @@ apiRoutes.post("/webhook-checkout", async function (req, res, next) {
                         template: 'edge_email_sv',
                         context:{
                             name: `${almauser.data.full_name}(${almauser.data.primary_id})`,
-                            illitems: illitems
+                            illitems: illitems,
+                            fees: fees
                         },
                         generateTextFromHTML: true,
                     }
