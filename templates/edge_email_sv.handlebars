@@ -17,29 +17,31 @@
                 </p>
                 
                 {{#each fees}}
-                    <p>
-                        {{ fees.value }}
-                    </p>
+                    <div class="fee-item">
+                        <p>
+                            {{ value }}
+                        </p>
 
-                    <p>
-                        {{ fees.desc }}
-                    </p>
+                        <p>
+                            {{ desc }}
+                        </p>
 
-                    <p>
-                        {{ fees.balance }}
-                    </p>
+                        <p>
+                            {{ balance }}
+                        </p>
 
-                    <p>
-                        {{ fees.title }}
-                    </p>
+                        <p>
+                            {{ title }}
+                        </p>
 
-                    <p>
-                        {{ fees.barcode }}
-                    </p>
+                        <p>
+                            {{ barcode }}
+                        </p>
 
-                    <p>
-                        {{ fees.id }}
-                    </p>
+                        <p>
+                            {{ id }}
+                        </p>
+                    </div>
                 {{/each}}
 
 </body>
