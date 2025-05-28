@@ -332,9 +332,9 @@ apiRoutes.post("/webhook-checkout", async function (req, res, next) {
                     try {
                         let mailinfo = await transporter.sendMail(mailOptions);
                         logger.info("webhook-checkout -- Sendmail")
-                        logger.info(JSON.stringify(mailinfo))
+                        logger.info(mailinfo)
                     } catch (err) {
-                        logger.error("webhook-checkout -- Sendmail")
+                        logger.error("webhook-checkout -- Sendmail Error")
                         logger.error(JSON.stringify(err))
                     }
                     
