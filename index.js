@@ -133,10 +133,10 @@ apiRoutes.post("/createpayment/:jwt", async function (req, res, next) {
             }
 
             if (totalamount > 0) {
-                let taxRate = process.env.TAXRATE //ingen moms på biblioteksverksamhet
+                let taxRate = Number(process.env.TAXRATE)
                 let grossTotalAmount = totalamount * 100
-                let netTotalAmount = grossTotalAmount / (1 + taxRate)
-                let taxAmount = netTotalAmount * taxRate
+                const taxAmount = Math.round(grossTotalAmount * (taxRate / (100 + taxRate)));
+                const netTotalAmount = grossTotalAmount - taxAmount;              
                 let unitPrice = netTotalAmount
                 let amount = grossTotalAmount
 
@@ -155,7 +155,7 @@ apiRoutes.post("/createpayment/:jwt", async function (req, res, next) {
                             "quantity": 1,
                             "unit": "pcs",
                             "unitPrice": unitPrice,
-                            "taxRate": taxRate * 10000,
+                            "taxRate": taxRate * 100,
                             "taxAmount": taxAmount,
                             "grossTotalAmount": grossTotalAmount,
                             "netTotalAmount": netTotalAmount
@@ -196,7 +196,7 @@ apiRoutes.post("/createpayment/:jwt", async function (req, res, next) {
             
                 //Spara payment_id + primary_id till DB
                 Controller.createPayment(netsresponse.data.paymentId, decodedtoken.userName, req.body.fee_id)
-                
+
                 res.json(netsresponse.data.paymentId)
             } else {
                 res.status(400)
